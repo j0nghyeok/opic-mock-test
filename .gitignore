@@ -1,0 +1,10 @@
+# OMC 작업 상태 / 로컬 아티팩트
+.omc/
+.DS_Store
+
+# 개인 데이터 (녹음 전사·오디오·번들) — 공개 저장소에 올리지 않음
+OPIC_전사결과.txt
+opic_bundle*.json
+opic_q*.webm
+opic_결과*.txt
+opic_전사*.txt

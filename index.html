@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPIc 개인 모의고사</title>
+  <!-- questions.js는 이 파일 이후에 로드 – 없어도 앱이 기동됨 -->
+  <script src="questions.js" onerror="console.warn('[OPIc] questions.js not found – stub mode')"></script>
+  <style>
+    :root {
+      --bg:           #0f172a;
+      --surface:      #1e293b;
+      --surface2:     #243047;
+      --border:       #2d3f55;
+      --accent:       #6366f1;
+      --accent-light: #818cf8;
+      --text:         #f1f5f9;
+      --text2:        #94a3b8;
+      --danger:       #ef4444;
+      --warning:      #f59e0b;
+      --success:      #22c55e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; width: 100%; }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 0.5rem;
+      font-size: 1rem; font-weight: 600; cursor: pointer; border: none;
+      transition: opacity 0.18s, transform 0.1s;
+    }
+    .btn:hover:not(:disabled) { opacity: 0.85; }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.38; cursor: not-allowed; }
+    .btn-primary   { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-lg        { padding: 1rem 2.25rem; font-size: 1.1rem; border-radius: 0.75rem; }
+    .tts-key-wrap  { margin-top: 1.5rem; text-align: center; }
+    .btn-tts-toggle{ background: none; border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.4rem 0.9rem; font-size: 0.8rem; color: var(--text2); cursor: pointer; }
+    .tts-key-panel { margin: 0.6rem auto 0; background: var(--surface2); border-radius: 0.75rem; padding: 1rem 1.2rem; text-align: left; max-width: 460px; }
+    .tts-key-panel p { font-size: 0.83rem; color: var(--text2); margin-bottom: 0.6rem; }
+    .tts-key-row   { display: flex; gap: 0.5rem; }
+    .tts-key-row input { flex: 1; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 0.4rem; background: var(--surface); color: var(--text); font-size: 0.83rem; }
+    .tts-key-row button{ padding: 0.4rem 0.85rem; background: var(--accent); color: #fff; border: none; border-radius: 0.4rem; cursor: pointer; font-size: 0.83rem; }
+    .tts-key-status{ font-size: 0.78rem; color: var(--text2); margin-top: 0.4rem; display: block; }
+    .tts-key-row select{ flex: 1; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 0.4rem; background: var(--surface); color: var(--text); font-size: 0.83rem; }
+
+    /* ─── CHECK ITEMS ─── */
+    .check-item input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .check-item label {
+      display: block; padding: 0.55rem 1rem; border-radius: 0.5rem;
+      border: 1.5px solid var(--border); background: var(--surface);
+      cursor: pointer; font-size: 0.875rem; color: var(--text2);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+    }
+    .check-item input:checked + label {
+      border-color: var(--accent); background: rgba(99,102,241,0.14);
+      color: var(--accent-light); font-weight: 600;
+    }
+    .check-item label:hover { border-color: var(--accent-light); color: var(--text); }
+
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--text2); margin-bottom: 0.65rem;
+    }
+    .check-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+      gap: 0.5rem;
+    }
+
+    /* ════════════════════════════════
+       SCREEN 1 – INTRO
+    ════════════════════════════════ */
+    #screen-intro {
+      align-items: center; justify-content: center;
+      padding: 3rem 1.25rem; text-align: center;
+    }
+    .intro-hero { margin-bottom: 2.5rem; }
+    .intro-hero h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .intro-hero p  { color: var(--text2); font-size: 1.05rem; }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1rem; margin-bottom: 2.5rem; max-width: 480px;
+    }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 0.875rem; padding: 1.25rem; text-align: center;
+    }
+    .feature-card .icon { font-size: 1.75rem; margin-bottom: 0.4rem; }
+    .feature-card h3   { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .feature-card p    { font-size: 0.78rem; color: var(--text2); line-height: 1.45; }
+
+    /* ════════════════════════════════
+       SCREEN 2 – SURVEY
+    ════════════════════════════════ */
+    #screen-survey { padding-bottom: 5rem; }
+
+    .survey-topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 1.15rem 0; margin-bottom: 1.5rem; position: sticky; top: 0; z-index: 10;
+    }
+    .survey-topbar .container { display: flex; align-items: center; justify-content: space-between; }
+    .survey-topbar h2 { font-size: 1.2rem; font-weight: 700; }
+    .survey-topbar span { font-size: 0.8rem; color: var(--text2); }
+
+    .survey-count { font-size: 0.85rem; font-weight: 700; transition: color 0.2s; }
+    .survey-count.ok  { color: var(--success); }
+    .survey-count.bad { color: var(--warning); }
+
+    .min-note { font-weight: 400; font-size: 0.7rem; color: var(--text2);
+      margin-left: 0.4rem; text-transform: none; letter-spacing: 0; }
+
+    .survey-error {
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35);
+      color: #fca5a5; border-radius: 8px; padding: 0.7rem 1rem;
+      font-size: 0.85rem; margin-bottom: 1rem; display: none;
+    }
+
+    .survey-section { margin-bottom: 1.75rem; }
+
+    .survey-footer {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+      background: linear-gradient(to top, var(--bg) 75%, transparent);
+      padding: 1.1rem 0 1.25rem;
+    }
+    .survey-footer .container { display: flex; justify-content: space-between; gap: 1rem; }
+
+    /* ════════════════════════════════
+       SCREEN 3 – DIFFICULTY
+    ════════════════════════════════ */
+    #screen-difficulty {
+      align-items: center; justify-content: center;
+      padding: 3rem 1.25rem; text-align: center;
+    }
+    #screen-difficulty h2  { font-size: 1.65rem; font-weight: 800; margin-bottom: 0.4rem; }
+    #screen-difficulty .sub { color: var(--text2); margin-bottom: 2rem; }
+
+    .diff-cards {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.25rem; margin-bottom: 2rem; max-width: 560px;
+    }
+    .diff-card {
+      background: var(--surface); border: 2px solid var(--border);
+      border-radius: 1rem; padding: 1.75rem 1.25rem;
+      cursor: pointer; text-align: center;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .diff-card:hover  { border-color: var(--accent-light); }
+    .diff-card.selected {
+      border-color: var(--accent); background: rgba(99,102,241,0.12);
+    }
+    .diff-badge {
+      display: inline-block; background: var(--accent); color: #fff;
+      font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.65rem;
+      border-radius: 999px; margin-bottom: 0.65rem;
+    }
+    .diff-count { font-size: 1.65rem; font-weight: 900; color: var(--accent-light); margin-bottom: 0.35rem; }
+    .diff-card h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.65rem; }
+    .diff-card ul { list-style: none; text-align: left; margin-top: 0.5rem; }
+    .diff-card ul li { font-size: 0.8rem; color: var(--text2); padding: 0.15rem 0; }
+    .diff-card ul li::before { content: "• "; color: var(--accent-light); }
+
+    /* ════════════════════════════════
+       SCREEN 4 – TEST
+    ════════════════════════════════ */
+    .test-topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.9rem 1.25rem;
+    }
+    .test-topbar-inner {
+      max-width: 720px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .q-counter { font-weight: 700; }
+    .q-counter span { color: var(--text2); }
+
+    .cat-badge {
+      font-size: 0.72rem; font-weight: 700; padding: 0.22rem 0.7rem;
+      border-radius: 999px; background: rgba(99,102,241,0.18); color: var(--accent-light);
+    }
+
+    .progress-bar-wrap { height: 4px; background: var(--surface2); }
+    .progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; }
+
+    .test-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1.25rem; gap: 2rem;
+    }
+
+    .q-status {
+      font-size: 2.5rem; min-height: 3.5rem;
+      animation: q-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes q-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .q-status.idle { animation: none; opacity: 0.25; }
+
+    /* 전체 시험 시간 */
+    .total-time {
+      font-size: 0.9rem; font-weight: 700; color: var(--text2);
+      font-variant-numeric: tabular-nums; letter-spacing: 0.05em;
+    }
+
+    /* Controls */
+    .test-controls {
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+    }
+
+    .mic-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+    .btn-mic {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--surface2); border: 2px solid var(--border);
+      font-size: 1.75rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s; position: relative;
+    }
+    .btn-mic:hover { border-color: var(--accent-light); }
+    .btn-mic.recording { background: var(--danger); border-color: var(--danger); }
+    .btn-mic.recording::after {
+      content: ''; position: absolute; inset: -7px;
+      border-radius: 50%; border: 2px solid var(--danger);
+      animation: mic-pulse 1.2s ease-out infinite;
+    }
+    @keyframes mic-pulse {
+      0%   { transform: scale(1);   opacity: 0.85; }
+      100% { transform: scale(1.55); opacity: 0; }
+    }
+
+    .rec-label {
+      font-size: 0.68rem; font-weight: 700; color: var(--danger);
+      letter-spacing: 0.1em; opacity: 0; margin-top: 0.5rem;
+      transition: opacity 0.15s; white-space: nowrap;
+    }
+    .btn-mic.recording ~ .rec-label { opacity: 1; }
+
+    /* ════════════════════════════════
+       SCREEN 5 – RESULTS
+    ════════════════════════════════ */
+    #screen-results { padding-bottom: 4rem; }
+
+    .results-topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 1.5rem 0; margin-bottom: 1.5rem; text-align: center;
+    }
+    .results-topbar h2 { font-size: 1.5rem; font-weight: 800; }
+    .results-topbar p  { color: var(--text2); font-size: 0.875rem; margin-top: 0.25rem; }
+
+    .result-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 0.875rem; padding: 1.25rem; margin-bottom: 1rem;
+    }
+    .result-item-header {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .result-num {
+      width: 2rem; height: 2rem; border-radius: 50%; flex-shrink: 0;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 700;
+    }
+    .result-q { font-size: 0.93rem; line-height: 1.55; color: var(--text); }
+    .result-audio { margin: 0.75rem 0 0; }
+
+    audio { width: 100%; border-radius: 0.5rem; display: block; }
+
+    .dl-link {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.78rem; color: var(--accent-light); text-decoration: none; margin-top: 0.35rem;
+    }
+    .dl-link:hover { text-decoration: underline; }
+
+    .result-memo {
+      width: 100%; margin-top: 0.75rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 0.5rem; color: var(--text); font-family: inherit;
+      font-size: 0.875rem; padding: 0.65rem 0.85rem;
+      resize: vertical; min-height: 76px;
+    }
+    .result-memo:focus { outline: none; border-color: var(--accent); }
+    .no-rec { font-size: 0.8rem; color: var(--text2); margin-top: 0.5rem; }
+
+    .results-export {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .copy-toast {
+      font-size: 0.8rem; color: var(--accent); font-weight: 600;
+      opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    .copy-toast.show { opacity: 1; }
+    .results-footer { text-align: center; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SCREEN 1 – INTRO
+══════════════════════════════════════ -->
+<section id="screen-intro" class="screen active">
+  <div class="intro-hero">
+    <h1>OPIc 개인 모의고사 🎙️</h1>
+    <p>실제 시험과 동일한 흐름으로 혼자 연습하세요</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon">📋</div>
+      <h3>서베이 기반 출제</h3>
+      <p>내 관심사에 맞는 문제만 선별 출제</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">⏱️</div>
+      <h3>실시간 타이머</h3>
+      <p>문항별 제한 시간을 시각적으로 확인</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🎤</div>
+      <h3>브라우저 녹음</h3>
+      <p>설치 없이 마이크 버튼 하나로 녹음</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📝</div>
+      <h3>자가 채점 메모</h3>
+      <p>문항별 피드백을 직접 기록·저장</p>
+    </div>
+  </div>
+  <button class="btn btn-primary btn-lg" onclick="goTo('screen-survey')">시험 시작하기 →</button>
+  <div class="tts-key-wrap">
+    <button class="btn-tts-toggle" onclick="document.getElementById('tts-key-panel').style.display=document.getElementById('tts-key-panel').style.display==='none'?'block':'none'">🔑 AI 음성 설정</button>
+    <div id="tts-key-panel" style="display:none" class="tts-key-panel">
+      <p>OpenAI API 키를 입력하면 자연스러운 AI 목소리(nova)로 문제를 읽어줍니다. 키는 브라우저에만 저장됩니다.</p>
+      <div class="tts-key-row">
+        <input type="password" id="openai-key-input" placeholder="sk-..." autocomplete="off">
+        <button onclick="saveTtsKey()">저장</button>
+      </div>
+      <small id="tts-key-status" class="tts-key-status"></small>
+    </div>
+  </div>
+  <div class="tts-key-wrap">
+    <button class="btn-tts-toggle" onclick="document.getElementById('anthropic-key-panel').style.display=document.getElementById('anthropic-key-panel').style.display==='none'?'block':'none'">🤖 AI 문제 생성 설정</button>
+    <div id="anthropic-key-panel" style="display:none" class="tts-key-panel">
+      <p>Anthropic API 키를 입력하면 매 시험마다 Claude가 새로운 OPIc 문제를 생성합니다. 키는 브라우저에만 저장됩니다. (미입력 시 내장 문제은행 사용)</p>
+      <div class="tts-key-row">
+        <input type="password" id="anthropic-key-input" placeholder="sk-ant-..." autocomplete="off">
+        <button onclick="saveAnthropicKey()">저장</button>
+      </div>
+      <div class="tts-key-row" style="margin-top:0.5rem">
+        <select id="anthropic-model-select" onchange="localStorage.setItem('opic_anthropic_model', this.value)">
+          <option value="claude-opus-4-8" selected>Opus 4.8 (기본·고품질)</option>
+          <option value="claude-sonnet-5">Sonnet 5 (균형)</option>
+          <option value="claude-haiku-4-5">Haiku 4.5 (빠름·저렴)</option>
+        </select>
+      </div>
+      <small id="anthropic-key-status" class="tts-key-status"></small>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2 – SURVEY
+══════════════════════════════════════ -->
+<section id="screen-survey" class="screen">
+  <div class="survey-topbar">
+    <div class="container">
+      <h2>📋 배경 서베이</h2>
+      <span id="survey-counter" class="survey-count bad">여가/취미/운동/여행: 0 / 12개</span>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Part 3 거주형태 -->
+    <div class="survey-section">
+      <div class="section-label">거주 형태 <span class="min-note">(1개 선택)</span></div>
+      <div class="check-grid">
+        <div class="check-item"><input type="radio" name="residence" id="r1" value="개인주택이나 아파트에 홀로 거주">   <label for="r1">개인주택이나 아파트에 홀로 거주</label></div>
+        <div class="check-item"><input type="radio" name="residence" id="r2" value="친구나 룸메이트와 함께 거주">       <label for="r2">친구나 룸메이트와 함께 거주</label></div>
+        <div class="check-item"><input type="radio" name="residence" id="r3" value="가족과 함께 주택이나 아파트에 거주"><label for="r3">가족과 함께 주택이나 아파트에 거주</label></div>
+        <div class="check-item"><input type="radio" name="residence" id="r4" value="학교 기숙사">                        <label for="r4">학교 기숙사</label></div>
+        <div class="check-item"><input type="radio" name="residence" id="r5" value="군대 막사">                          <label for="r5">군대 막사</label></div>
+      </div>
+    </div>
+
+    <!-- Part 4-1 여가활동 -->
+    <div class="survey-section">
+      <div class="section-label">4-1 여가 활동 <span class="min-note">(최소 2개)</span></div>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" name="leisure" id="l1"  value="영화 보기">              <label for="l1">영화 보기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l2"  value="클럽/나이트클럽 가기">   <label for="l2">클럽/나이트클럽 가기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l3"  value="공연 보기">              <label for="l3">공연 보기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l4"  value="콘서트 보기">            <label for="l4">콘서트 보기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l5"  value="박물관 가기">            <label for="l5">박물관 가기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l6"  value="공원 가기">              <label for="l6">공원 가기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l7"  value="캠핑 하기">              <label for="l7">캠핑 하기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l8"  value="해변 가기">              <label for="l8">해변 가기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l9"  value="스포츠 관람">            <label for="l9">스포츠 관람</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l10" value="주거 개선">              <label for="l10">주거 개선</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l11" value="요리 관련 프로그램 시청"><label for="l11">요리 관련 프로그램 시청</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l12" value="게임 하기">              <label for="l12">게임 하기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l13" value="SNS 글 올리기">          <label for="l13">SNS 글 올리기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l14" value="술집/바에 가기">         <label for="l14">술집/바에 가기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l15" value="친구들과 문자하기">      <label for="l15">친구들과 문자하기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l16" value="당구치기">               <label for="l16">당구치기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l17" value="자원 봉사">              <label for="l17">자원 봉사</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l18" value="차 드라이브 하기">       <label for="l18">차 드라이브 하기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l19" value="시험 대비 과정 수강">    <label for="l19">시험 대비 과정 수강</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l20" value="뉴스 보거나 듣기">       <label for="l20">뉴스 보거나 듣기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l21" value="카페/커피 전문점 가기">  <label for="l21">카페/커피 전문점 가기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l22" value="체스">                   <label for="l22">체스</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l23" value="TV 시청">                <label for="l23">TV 시청</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l24" value="쇼핑하기">               <label for="l24">쇼핑하기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l25" value="리얼리티 쇼 보기">       <label for="l25">리얼리티 쇼 보기</label></div>
+        <div class="check-item"><input type="checkbox" name="leisure" id="l26" value="구직 활동">              <label for="l26">구직 활동</label></div>
+      </div>
+    </div>
+
+    <!-- Part 4-2 취미/관심사 -->
+    <div class="survey-section">
+      <div class="section-label">4-2 취미 / 관심사 <span class="min-note">(최소 1개)</span></div>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h1"  value="아이에게 책 읽어주기">         <label for="h1">아이에게 책 읽어주기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h2"  value="음악 감상하기">                <label for="h2">음악 감상하기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h3"  value="악기 연주하기">                <label for="h3">악기 연주하기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h4"  value="혼자 노래부르거나 합창하기">  <label for="h4">혼자 노래부르거나 합창하기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h5"  value="춤추기">                       <label for="h5">춤추기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h6"  value="글쓰기">                       <label for="h6">글쓰기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h7"  value="그림 그리기">                  <label for="h7">그림 그리기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h8"  value="여행 관련 잡지나 블로그 글 읽기"><label for="h8">여행 관련 잡지나 블로그 글 읽기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h9"  value="사진 촬영하기">                <label for="h9">사진 촬영하기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h10" value="주식 투자">                    <label for="h10">주식 투자</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h11" value="신문 읽기">                    <label for="h11">신문 읽기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h12" value="독서">                         <label for="h12">독서</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h13" value="요리하기">                     <label for="h13">요리하기</label></div>
+        <div class="check-item"><input type="checkbox" name="hobbies" id="h14" value="애완동물 키우기">               <label for="h14">애완동물 키우기</label></div>
+      </div>
+    </div>
+
+    <!-- Part 4-3 운동 -->
+    <div class="survey-section">
+      <div class="section-label">4-3 운동 <span class="min-note">(최소 1개)</span></div>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" name="sports" id="s1"  value="농구">              <label for="s1">농구</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s2"  value="야구/소프트볼">     <label for="s2">야구/소프트볼</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s3"  value="축구">              <label for="s3">축구</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s4"  value="미식축구">          <label for="s4">미식축구</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s5"  value="하키">              <label for="s5">하키</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s6"  value="크리켓">            <label for="s6">크리켓</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s7"  value="골프">              <label for="s7">골프</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s8"  value="배구">              <label for="s8">배구</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s9"  value="테니스">            <label for="s9">테니스</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s10" value="배드민턴">          <label for="s10">배드민턴</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s11" value="탁구">              <label for="s11">탁구</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s12" value="태권도">            <label for="s12">태권도</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s13" value="수영">              <label for="s13">수영</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s14" value="자전거">            <label for="s14">자전거</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s15" value="스키/스노우보드">   <label for="s15">스키/스노우보드</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s16" value="아이스 스케이트">   <label for="s16">아이스 스케이트</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s17" value="조깅">              <label for="s17">조깅</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s18" value="걷기">              <label for="s18">걷기</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s19" value="요가">              <label for="s19">요가</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s20" value="하이킹/트레킹">     <label for="s20">하이킹/트레킹</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s21" value="낚시">              <label for="s21">낚시</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s22" value="헬스">              <label for="s22">헬스</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s23" value="운동 수업 수강하기"><label for="s23">운동 수업 수강하기</label></div>
+        <div class="check-item"><input type="checkbox" name="sports" id="s24" value="운동을 전혀 하지 않음"><label for="s24">운동을 전혀 하지 않음</label></div>
+      </div>
+    </div>
+
+    <!-- Part 4-4 여행/출장 -->
+    <div class="survey-section" style="margin-bottom:5rem;">
+      <div class="section-label">4-4 여행 / 출장 <span class="min-note">(최소 1개)</span></div>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" name="travel" id="t1" value="국내 출장">        <label for="t1">국내 출장</label></div>
+        <div class="check-item"><input type="checkbox" name="travel" id="t2" value="해외 출장">        <label for="t2">해외 출장</label></div>
+        <div class="check-item"><input type="checkbox" name="travel" id="t3" value="집에서 보내는 휴가"><label for="t3">집에서 보내는 휴가</label></div>
+        <div class="check-item"><input type="checkbox" name="travel" id="t4" value="국내여행">         <label for="t4">국내 여행</label></div>
+        <div class="check-item"><input type="checkbox" name="travel" id="t5" value="해외여행">         <label for="t5">해외 여행</label></div>
+      </div>
+    </div>
+
+  </div><!-- /.container -->
+
+  <div class="survey-footer">
+    <div class="container" style="flex-direction:column;gap:0.6rem;">
+      <div id="survey-error" class="survey-error"></div>
+      <div style="display:flex;justify-content:space-between;gap:1rem;width:100%;">
+        <button class="btn btn-secondary" onclick="goTo('screen-intro')">← 뒤로</button>
+        <button class="btn btn-primary" onclick="onSurveyNext()">다음 →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SCREEN 3 – DIFFICULTY
+══════════════════════════════════════ -->
+<section id="screen-difficulty" class="screen">
+  <div class="container" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding-top:3rem;padding-bottom:3rem;">
+    <h2>난이도를 선택하세요</h2>
+    <p class="sub">난이도 3-6은 실제 시험에서 모두 15문항입니다 — 문항 수는 같고 목표 등급/기대 답변 깊이만 다릅니다</p>
+
+    <div class="diff-cards">
+      <!-- 5-5 -->
+      <div class="diff-card" id="card-55" onclick="selectDifficulty('5-5')">
+        <div class="diff-badge">IH 목표</div>
+        <div class="diff-count">15문항</div>
+        <h3>5-5 모드</h3>
+        <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.65rem;">난이도 5 · 15문항</div>
+        <ul>
+          <li>자기소개 1문항</li>
+          <li>서베이/돌발 콤보 3세트 (9문항)</li>
+          <li>어드밴스 콤보 3문항 (이슈·의견·비교)</li>
+          <li>롤플레이 2문항 (정보요청·문제해결)</li>
+        </ul>
+      </div>
+      <!-- 6-6 -->
+      <div class="diff-card" id="card-66" onclick="selectDifficulty('6-6')">
+        <div class="diff-badge">AL 목표</div>
+        <div class="diff-count">15문항</div>
+        <h3>6-6 모드</h3>
+        <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.65rem;">난이도 6 · 15문항</div>
+        <ul>
+          <li>자기소개 1문항</li>
+          <li>서베이/돌발 콤보 3세트 (9문항)</li>
+          <li>어드밴스 콤보 3문항 (이슈·의견·비교)</li>
+          <li>롤플레이 2문항 (정보요청·문제해결)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;">
+      <button class="btn btn-secondary" onclick="goTo('screen-survey')">← 뒤로</button>
+      <button id="btn-start" class="btn btn-primary" disabled onclick="startTest()">시험 시작 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SCREEN 4 – TEST
+══════════════════════════════════════ -->
+<section id="screen-test" class="screen">
+
+  <div class="test-topbar">
+    <div class="test-topbar-inner">
+      <div class="q-counter">문항 <span id="q-current">1</span> <span>/ <span id="q-total">15</span></span></div>
+      <div class="cat-badge" id="q-category">자기소개</div>
+      <div class="total-time" id="total-time">60:00</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <div class="test-body">
+
+    <!-- 문제 상태 표시 -->
+    <div class="q-status" id="q-status">🎧</div>
+
+    <div class="test-controls">
+      <button class="btn btn-secondary" id="btn-tts" onclick="manualReplay()">🔊 다시 듣기</button>
+      <div class="mic-wrap">
+        <button class="btn-mic" id="btn-mic" disabled onclick="toggleRecording()" title="녹음">🎤</button>
+        <span class="rec-label" id="rec-label">● REC</span>
+      </div>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">다음 문제 →</button>
+    </div>
+
+    <span id="question-text" style="display:none"></span>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SCREEN 5 – RESULTS
+══════════════════════════════════════ -->
+<section id="screen-results" class="screen">
+  <div class="results-topbar">
+    <div class="container">
+      <h2>🏁 시험 완료</h2>
+      <p>녹음을 다시 듣고 메모로 자가 채점하세요</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="results-export">
+      <button class="btn btn-secondary" onclick="copyResults()">📋 전체 복사</button>
+      <button class="btn btn-secondary" onclick="downloadResults()">⬇ 텍스트 다운로드</button>
+      <button class="btn btn-secondary" id="btn-transcript" onclick="downloadTranscript()">🎤 전사본 다운로드</button>
+      <span class="copy-toast" id="copy-toast">복사됨!</span>
+    </div>
+    <div id="results-list"></div>
+    <div class="results-footer">
+      <button class="btn btn-primary btn-lg" onclick="newSession()">새 세션 시작</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+/* ──────────────────────────────────────
+   SAFE STUBS (questions.js 없을 때 대비)
+────────────────────────────────────── */
+if (typeof SELF_INTRO === 'undefined')
+  window.SELF_INTRO = { text: '[SELF_INTRO undefined – please load questions.js]', time: 60 };
+if (typeof SURVEY_QUESTIONS === 'undefined')
+  window.SURVEY_QUESTIONS = {};
+if (typeof SURPRISE_TOPICS === 'undefined')
+  window.SURPRISE_TOPICS = [];
+if (typeof ROLEPLAY_SCENARIOS === 'undefined')
+  window.ROLEPLAY_SCENARIOS = [];
+if (typeof ADVANCE_TOPICS === 'undefined')
+  window.ADVANCE_TOPICS = [];
+
+/* ──────────────────────────────────────
+   CONSTANTS
+────────────────────────────────────── */
+
+const LS_KEY = 'opic_survey_v1';
+
+/* ──────────────────────────────────────
+   STATE
+────────────────────────────────────── */
+const state = {
+  survey:       { residence: '', leisure: [], hobbies: [], sports: [], travel: [] },
+  difficulty:   '',
+  questions:    [],
+  currentIndex: 0,
+  recordings:   [],
+  timerInterval:      null,
+  prepInterval:       null,
+  replayTimeout:      null,
+  totalTimerInterval: null,
+  timeLeft:           0,
+  totalTime:          0,
+  totalTimeLeft:      0,
+  mediaRecorder: null,
+  audioChunks:  [],
+  isRecording:  false,
+  objectUrls:   [],
+  _answerStarted: false,
+  _replayCount:   0,
+  _micWatchdog:   null,
+};
+
+/* ──────────────────────────────────────
+   NAVIGATION
+────────────────────────────────────── */
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+/* ──────────────────────────────────────
+   SURVEY – DOM read / save / restore
+────────────────────────────────────── */
+function readSurveyDOM() {
+  const getChecked = name =>
+    [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el => el.value);
+  return {
+    residence: document.querySelector('input[name="residence"]:checked')?.value || '',
+    leisure:   getChecked('leisure'),
+    hobbies:   getChecked('hobbies'),
+    sports:    getChecked('sports'),
+    travel:    getChecked('travel'),
+  };
+}
+
+function saveSurvey() {
+  const data = readSurveyDOM();
+  localStorage.setItem(LS_KEY, JSON.stringify(data));
+  return data;
+}
+
+function restoreSurvey() {
+  const raw = localStorage.getItem(LS_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    if (data.residence) {
+      const el = document.querySelector(`input[name="residence"][value="${data.residence}"]`);
+      if (el) el.checked = true;
+    }
+    ['leisure', 'hobbies', 'sports', 'travel'].forEach(cat => {
+      (data[cat] || []).forEach(val => {
+        const el = document.querySelector(`input[name="${cat}"][value="${val}"]`);
+        if (el) el.checked = true;
+      });
+    });
+  } catch (e) {
+    console.warn('[OPIc] survey restore failed:', e);
+  }
+}
+
+function updateSurveyCounter() {
+  const n = {
+    leisure: document.querySelectorAll('input[name="leisure"]:checked').length,
+    hobbies: document.querySelectorAll('input[name="hobbies"]:checked').length,
+    sports:  document.querySelectorAll('input[name="sports"]:checked').length,
+    travel:  document.querySelectorAll('input[name="travel"]:checked').length,
+  };
+  const total = n.leisure + n.hobbies + n.sports + n.travel;
+  const el = document.getElementById('survey-counter');
+  el.textContent = `여가/취미/운동/여행: ${total} / 12개`;
+  el.className = 'survey-count ' + (total >= 12 ? 'ok' : 'bad');
+}
+
+// 변경 즉시 localStorage 저장 + 카운터 갱신
+document.addEventListener('change', e => {
+  if (['residence','leisure','hobbies','sports','travel'].includes(e.target.name)) {
+    saveSurvey();
+    updateSurveyCounter();
+  }
+});
+
+function onSurveyNext() {
+  const survey = saveSurvey();
+  const c = {
+    leisure: survey.leisure.length,
+    hobbies: survey.hobbies.length,
+    sports:  survey.sports.length,
+    travel:  survey.travel.length,
+  };
+  const total = c.leisure + c.hobbies + c.sports + c.travel;
+  const errors = [];
+  if (!survey.residence)  errors.push('거주 형태를 선택해주세요');
+  if (c.leisure < 2) errors.push('여가 활동 2개 이상');
+  if (c.hobbies < 1) errors.push('취미/관심사 1개 이상');
+  if (c.sports  < 1) errors.push('운동 1개 이상');
+  if (c.travel  < 1) errors.push('여행/출장 1개 이상');
+  if (total < 12)    errors.push(`4개 섹션 합산 12개 이상 (현재 ${total}개)`);
+
+  const errEl = document.getElementById('survey-error');
+  if (errors.length > 0) {
+    errEl.textContent = '⚠ ' + errors.join(' · ');
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  state.survey = survey;
+  goTo('screen-difficulty');
+}
+
+/* ──────────────────────────────────────
+   DIFFICULTY SELECTION
+────────────────────────────────────── */
+function selectDifficulty(d) {
+  state.difficulty = d;
+  document.querySelectorAll('.diff-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(d === '5-5' ? 'card-55' : 'card-66').classList.add('selected');
+  document.getElementById('btn-start').disabled = false;
+}
+
+/* ──────────────────────────────────────
+   UTILITIES
+────────────────────────────────────── */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickN(arr, n) {
+  return shuffle(arr).slice(0, n);
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ──────────────────────────────────────
+   COMBO PICKER (콤보 내부 문제 유형 순서 고정)
+   한 주제 pool([묘사, 습관/경험/기타, 비교] 3문항)에서 고정 순서로 3문항을 뽑는다.
+   Q1: 묘사
+   Q2(습관/루틴 슬롯): 루틴 있으면 그것, 없으면 경험
+   Q3: wantCompare=true → 비교 / false → 경험(있으면) 없으면 남은 문항
+   3문항을 못 채우면(주로 Q2 매칭 실패) null → 그 주제는 skip
+────────────────────────────────────── */
+function pickCombo(pool, wantCompare) {
+  const remaining = [...pool];
+  const takeOne = (pred) => {
+    const idx = remaining.findIndex(pred);
+    if (idx === -1) return null;
+    return remaining.splice(idx, 1)[0];
+  };
+
+  const q1 = takeOne(q => q.type === '묘사');
+  if (!q1) return null;
+
+  let q2 = takeOne(q => q.type === '루틴');
+  if (!q2) q2 = takeOne(q => q.type === '경험');
+  // 습관/경험이 없는 주제(중간 문항이 계기·준비·이유·의견 등)도 콤보가 성립하도록
+  // 묘사·비교를 제외한 남은 유형을 습관 슬롯 대체로 허용 (선택한 관심사가 조용히 skip되는 것 방지)
+  if (!q2) q2 = takeOne(q => q.type !== '묘사' && q.type !== '비교');
+  if (!q2) return null;
+
+  let q3;
+  if (wantCompare) {
+    q3 = takeOne(q => q.type === '비교');
+  } else {
+    q3 = takeOne(q => q.type === '경험');
+    if (!q3) q3 = remaining.length ? remaining[0] : null;
+  }
+  if (!q3) return null;
+
+  return [q1, q2, q3];
+}
+
+/* topics 배열에서 순서대로 콤보 1개를 뽑아 qs에 push. 성공한 주제는 topics에서 제거. */
+function takeComboFromTopics(topics, wantCompare, categoryPrefix, qs) {
+  for (let i = 0; i < topics.length; i++) {
+    const { key, questions } = topics[i];
+    const combo = pickCombo(questions, wantCompare);
+    if (combo) {
+      topics.splice(i, 1);
+      combo.forEach(q => qs.push({ ...q, category: `${categoryPrefix} · ${key}` }));
+      return true;
+    }
+  }
+  return false;
+}
+
+function addRoleplay(qs) {
+  if (ROLEPLAY_SCENARIOS.length === 0) return;
+  const scenario = ROLEPLAY_SCENARIOS[Math.floor(Math.random() * ROLEPLAY_SCENARIOS.length)];
+  scenario.parts.slice(0, 2).forEach(p => qs.push({ ...p, category: `롤플레이 · ${scenario.key}` }));
+}
+
+/* ──────────────────────────────────────
+   BUILD QUESTION LIST
+   실제 OPIc: 난이도 3-6은 모두 동일하게 15문항(60분). 따라서 5-5·6-6 둘 다 15문항으로 통일.
+   (두 모드의 차이는 문항 수가 아니라 목표 등급/기대 답변 깊이)
+   구성 = 자기소개(1) + 콤보 3세트×3문항(9, 서베이/돌발) + 롤플레이 2문항(2, 정보요청·문제해결)
+          + 어드밴스 콤보 3문항(3, 이슈·의견·비교) = 15
+   콤보 내부 유형 순서: 묘사 → 습관/루틴 → 경험(콤보1) 또는 비교(그 외 콤보)
+────────────────────────────────────── */
+function buildQuestions(survey, difficulty) {
+  const qs  = [];
+
+  /* 1. 자기소개 */
+  qs.push({ text: SELF_INTRO.text, time: SELF_INTRO.time, category: '자기소개' });
+
+  /* 2. 서베이 풀 빌드 */
+  const surveyPool = [];
+
+  if (survey.residence && SURVEY_QUESTIONS[survey.residence]) {
+    surveyPool.push({ key: survey.residence, questions: SURVEY_QUESTIONS[survey.residence] });
+  }
+  ['leisure', 'hobbies', 'sports', 'travel'].forEach(cat => {
+    (survey[cat] || []).forEach(val => {
+      // 같은 key 중복 방지: 한 주제가 두 번 뽑혀 동일 콤보가 나오는 것을 차단
+      if (SURVEY_QUESTIONS[val] && !surveyPool.some(t => t.key === val)) {
+        surveyPool.push({ key: val, questions: SURVEY_QUESTIONS[val] });
+      }
+    });
+  });
+
+  const shuffledSurvey   = shuffle(surveyPool);
+  const shuffledSurprise = shuffle([...SURPRISE_TOPICS]);
+
+  /* ── 콤보1 서베이(묘사→습관→경험), 부족하면 돌발로 보완 ── */
+  if (!takeComboFromTopics(shuffledSurvey, false, '서베이', qs))
+    takeComboFromTopics(shuffledSurprise, false, '돌발', qs);
+
+  /* ── 콤보2 서베이 또는 돌발(묘사→습관→비교) ── */
+  if (!takeComboFromTopics(shuffledSurvey, true, '서베이', qs))
+    takeComboFromTopics(shuffledSurprise, true, '돌발', qs);
+
+  /* ── 콤보3 돌발(묘사→습관→비교) ── */
+  takeComboFromTopics(shuffledSurprise, true, '돌발', qs);
+
+  /* ── 롤플레이 (11-13, parts 2개: 정보요청·문제해결) ── */
+  addRoleplay(qs);
+
+  /* ── 어드밴스 (14-15, 랜덤 1개 주제의 questions 3개: 이슈·의견·비교) ── */
+  if (ADVANCE_TOPICS.length > 0) {
+    const topic = ADVANCE_TOPICS[Math.floor(Math.random() * ADVANCE_TOPICS.length)];
+    topic.questions.slice(0, 3).forEach(q => qs.push({ ...q, category: `어드밴스 · ${topic.key}` }));
+  }
+
+  return qs;
+}
+
+/* ──────────────────────────────────────
+   CLAUDE 동적 문제생성 (실패 시 폴백)
+────────────────────────────────────── */
+const ANTHROPIC_QUESTION_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["questions"],
+  properties: {
+    questions: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["text", "time", "type", "category"],
+        properties: {
+          text:     { type: "string" },
+          time:     { type: "integer" },
+          type:     { type: "string" },
+          category: { type: "string" }
+        }
+      }
+    }
+  }
+};
+
+function buildSurveyText(survey) {
+  const parts = [];
+  if (survey.residence) parts.push(`거주형태: ${survey.residence}`);
+  const labels = { leisure: '여가활동', hobbies: '취미/관심사', sports: '운동', travel: '여행/출장' };
+  ['leisure', 'hobbies', 'sports', 'travel'].forEach(cat => {
+    if (survey[cat] && survey[cat].length) parts.push(`${labels[cat]}: ${survey[cat].join(', ')}`);
+  });
+  return parts.join(' / ');
+}
+
+async function generateQuestionsWithClaude(survey, difficulty) {
+  const key = localStorage.getItem('opic_anthropic_key');
+  if (!key) return null;
+
+  const model = localStorage.getItem('opic_anthropic_model') || 'claude-opus-4-8';
+  const surveyText = buildSurveyText(survey);
+
+  const prompt = `당신은 OPIc(Oral Proficiency Interview-computer) 시험 문제 출제자입니다. 아래 응시자의 배경 서베이를 참고하여 실제 OPIc 시험관 톤의 영어 질문 정확히 15개를 생성하세요.
+
+응시자 서베이: ${surveyText || '(선택 항목 없음)'}
+목표 난이도: ${difficulty || '5-6등급'}
+
+질문은 반드시 아래 순서와 구조를 따라야 합니다 (총 15문항, 모든 text는 영어):
+1번: 자기소개 1문항 (category: "자기소개", type: "자기소개", time: 60)
+2-4번: 서베이 콤보1 — 서베이에서 선택된 주제 중 하나를 골라 묘사(time 90) → 습관/경험(time 90) → 비교(time 110) 순서의 3문항. category는 "서베이 · <주제>", type은 각각 묘사/경험(또는 루틴)/비교.
+5-7번: 서베이 콤보2 — 콤보1과 다른 선택 주제로 동일하게 묘사(90) → 습관/경험(90) → 비교(110). category "서베이 · <주제>".
+8-10번: 돌발 콤보 — 서베이에 없는 일반 주제(예: 날씨, 교통, 은행, 건강, 재활용, 기술 등) 하나를 골라 묘사(90) → 습관/경험(90) → 비교(110). category "돌발 · <주제>".
+11-12번: 롤플레이 2문항 — 정보요청(time 60, type "정보요청") → 문제해결(time 90, type "문제해결"). category "롤플레이 · <상황>".
+13-15번: 어드밴스 콤보 3문항 — 사회 이슈(time 90, type "이슈") → 의견(time 110, type "의견") → 비교(time 120, type "비교"). category "어드밴스 · <주제>".
+
+정확히 15개 문항을 순서대로 생성하고, 각 문항은 text/time/type/category 필드를 모두 포함해야 합니다.`;
+
+  // 무응답(hang) 대비 타임아웃: abort 시 예외가 던져져 startTest의 catch 폴백으로 흡수됨
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: model,
+        max_tokens: 8000,
+        output_config: { format: { type: 'json_schema', schema: ANTHROPIC_QUESTION_SCHEMA } },
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  const data = await res.json();
+
+  if (!res.ok || data.stop_reason === 'refusal') {
+    throw new Error(`Claude API 오류: ${(data && data.error && data.error.message) || res.status}`);
+  }
+
+  const block = data.content && data.content.find(b => b.type === 'text');
+  if (!block) throw new Error('Claude 응답에 text 블록이 없습니다.');
+
+  const parsed = JSON.parse(block.text);
+  const questions = parsed && parsed.questions;
+
+  if (!Array.isArray(questions) || questions.length !== 15 ||
+      questions.some(q => !q || !q.text || typeof q.time !== 'number' || !q.type || !q.category)) {
+    throw new Error('Claude가 생성한 문항 구조가 올바르지 않습니다.');
+  }
+
+  return questions;
+}
+
+/* ──────────────────────────────────────
+   START TEST
+────────────────────────────────────── */
+async function startTest() {
+  const btnStart = document.getElementById('btn-start');
+  const anthropicKey = localStorage.getItem('opic_anthropic_key');
+
+  if (anthropicKey) {
+    if (btnStart) { btnStart.disabled = true; btnStart.textContent = '🤖 Claude가 문제를 생성 중...'; }
+    try {
+      const qs = await generateQuestionsWithClaude(state.survey, state.difficulty);
+      state.questions = qs;
+    } catch (e) {
+      console.warn('[OPIc] Claude 문제 생성 실패, 내장 문제은행으로 대체합니다:', e && e.message);
+      console.warn('[OPIc] file:// 환경에서 CORS로 직접 호출이 차단된 경우, 로컬 서버(예: python3 -m http.server)에서 열면 해결될 수 있습니다.');
+      alert('AI 생성 실패 — 내장 문제로 진행합니다');
+      state.questions = buildQuestions(state.survey, state.difficulty);
+    } finally {
+      if (btnStart) { btnStart.disabled = false; btnStart.textContent = '시험 시작 →'; }
+    }
+  } else {
+    state.questions = buildQuestions(state.survey, state.difficulty);
+  }
+
+  state.currentIndex = 0;
+  state.recordings   = new Array(state.questions.length).fill(null);
+
+  document.getElementById('q-total').textContent = state.questions.length;
+  goTo('screen-test');
+  startTotalTimer();
+  renderQuestion();
+}
+
+/* ──────────────────────────────────────
+   RENDER QUESTION
+────────────────────────────────────── */
+function renderQuestion() {
+  // 이전 상태 초기화
+  stopTimer();
+  stopPrepCountdown();
+  forceStopRecording();
+
+  const q     = state.questions[state.currentIndex];
+  const idx   = state.currentIndex;
+  const total = state.questions.length;
+
+  document.getElementById('q-current').textContent  = idx + 1;
+  document.getElementById('q-category').textContent = q.category || '';
+  document.getElementById('progress-fill').style.width = (idx / total * 100) + '%';
+
+  // 마이크 비활성 + 다시듣기 활성 + 상태 표시
+  const mic = document.getElementById('btn-mic');
+  if (mic) { mic.disabled = true; mic.classList.remove('recording'); }
+  const tts = document.getElementById('btn-tts');
+  if (tts) tts.disabled = false;
+  document.getElementById('rec-label').style.opacity = '0';
+  const qs = document.getElementById('q-status');
+  if (qs) { qs.textContent = '🎧'; qs.classList.remove('idle'); }
+
+  // 다음 문항 진입 시 답변 시작 여부 / 다시듣기 횟수 리셋
+  state._answerStarted = false;
+  state._replayCount = 0;
+
+  // 질문 재생 → 끝나면 자동 녹음 시작
+  speakQuestion(autoStartRecording);
+
+  // 워치독: TTS가 끝나지 않아도 일정 시간 뒤 반드시 마이크가 켜지도록 백스톱
+  clearTimeout(state._micWatchdog);
+  state._micWatchdog = setTimeout(() => autoStartRecording(),
+    Math.min(60000, 8000 + (q.text ? q.text.length * 60 : 8000)));
+}
+
+async function autoStartRecording() {
+  if (state._answerStarted) return;
+  state._answerStarted = true;
+  clearTimeout(state._micWatchdog);
+
+  const qs = document.getElementById('q-status');
+  if (qs) { qs.textContent = ''; qs.classList.add('idle'); }
+  const mic = document.getElementById('btn-mic');
+  if (mic) mic.disabled = false;
+
+  // 5초 후 다시듣기 비활성
+  clearTimeout(state.replayTimeout);
+  state.replayTimeout = setTimeout(() => {
+    const tts = document.getElementById('btn-tts');
+    if (tts) tts.disabled = true;
+  }, 5000);
+
+  await startRecording();
+}
+
+function stopPrepCountdown() {
+  if (state.prepInterval) {
+    clearInterval(state.prepInterval);
+    state.prepInterval = null;
+  }
+  clearTimeout(state.replayTimeout);
+  state.replayTimeout = null;
+  clearTimeout(state._micWatchdog);
+  state._micWatchdog = null;
+}
+
+/* ──────────────────────────────────────
+   TTS – Web Speech Synthesis
+────────────────────────────────────── */
+let _cachedVoices = [];
+let _ttsAudio = null;
+let _ttsController = null;
+
+/* 마이크 스트림 재사용 (권한 재요청 방지) */
+let _micStream = null;
+async function getMicStream() {
+  if (_micStream && _micStream.active) return _micStream;
+  _micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  return _micStream;
+}
+function releaseMicStream() {
+  if (_micStream) { _micStream.getTracks().forEach(t => t.stop()); _micStream = null; }
+}
+
+if (window.speechSynthesis) {
+  const _loadVoices = () => { _cachedVoices = speechSynthesis.getVoices(); };
+  speechSynthesis.onvoiceschanged = _loadVoices;
+  _loadVoices();
+}
+
+function _pickEnVoice() {
+  const voices = _cachedVoices.length ? _cachedVoices : speechSynthesis.getVoices();
+  const PREFERRED = ['Google US English', 'Samantha', 'Alex', 'Karen', 'Moira'];
+  for (const name of PREFERRED) {
+    const v = voices.find(v => v.name === name);
+    if (v) return v;
+  }
+  return voices.find(v => v.lang === 'en-US') || voices.find(v => v.lang.startsWith('en')) || null;
+}
+
+function cancelTTS() {
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  if (_ttsAudio) { _ttsAudio.pause(); _ttsAudio = null; }
+  if (_ttsController) { _ttsController.abort(); _ttsController = null; }
+}
+
+async function speakQuestion(onEnd) {
+  const q = state.questions[state.currentIndex];
+  if (!q) return;
+  const myIndex = state.currentIndex;
+  cancelTTS();
+
+  // 재생 중 표시
+  const qs = document.getElementById('q-status');
+  if (qs) { qs.textContent = '🎧'; qs.classList.remove('idle'); }
+
+  function _done() {
+    if (myIndex !== state.currentIndex) return;
+    if (qs) { qs.textContent = ''; qs.classList.add('idle'); }
+    if (onEnd) onEnd();
+  }
+
+  const apiKey = localStorage.getItem('opic_openai_key');
+  if (apiKey) {
+    try {
+      _ttsController = new AbortController();
+      const res = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'tts-1-hd', voice: 'nova', input: q.text }),
+        signal: _ttsController.signal
+      });
+      if (myIndex !== state.currentIndex) return;
+      if (!res.ok) throw new Error(`${res.status}`);
+      const url = URL.createObjectURL(await res.blob());
+      if (myIndex !== state.currentIndex) { URL.revokeObjectURL(url); return; }
+      _ttsAudio = new Audio(url);
+      _ttsAudio.onended = () => { URL.revokeObjectURL(url); _ttsAudio = null; _done(); };
+      _ttsAudio.play().catch(() => { _done(); });
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      console.warn('[OPIc] OpenAI TTS 실패, 브라우저 음성으로 대체:', e.message);
+    } finally {
+      _ttsController = null;
+    }
+  }
+
+  if (!window.speechSynthesis) { _done(); return; }
+  if (myIndex !== state.currentIndex) return;
+  const utt  = new SpeechSynthesisUtterance(q.text);
+  utt.lang   = 'en-US';
+  utt.rate   = 0.88;
+  utt.pitch  = 1;
+  utt.onend  = () => _done();
+  utt.onerror = () => _done();
+  const voice = _pickEnVoice();
+  if (voice) utt.voice = voice;
+  speechSynthesis.speak(utt);
+}
+
+function manualReplay() {
+  if (state._replayCount >= 1) return;
+  state._replayCount++;
+  // 초기 리딩이 아직 안 끝났는데 다시듣기하면, 이 재생이 끝날 때 녹음이 시작되도록 onEnd 연결
+  speakQuestion(state._answerStarted ? undefined : autoStartRecording);
+  if (state._replayCount >= 1) {
+    const t = document.getElementById('btn-tts');
+    if (t) t.disabled = true;
+  }
+}
+
+function saveTtsKey() {
+  const key = document.getElementById('openai-key-input').value.trim();
+  if (key) localStorage.setItem('opic_openai_key', key);
+  else localStorage.removeItem('opic_openai_key');
+  document.getElementById('tts-key-status').textContent =
+    key ? '✅ 저장됨 — AI 음성 활성화' : '키 없음 — 브라우저 기본 음성 사용';
+}
+
+function initTtsKey() {
+  const key = localStorage.getItem('opic_openai_key') || '';
+  if (!key) return;
+  document.getElementById('openai-key-input').value = key;
+  document.getElementById('tts-key-status').textContent = '✅ 저장됨 — AI 음성 활성화';
+}
+
+function saveAnthropicKey() {
+  const key = document.getElementById('anthropic-key-input').value.trim();
+  if (key) localStorage.setItem('opic_anthropic_key', key);
+  else localStorage.removeItem('opic_anthropic_key');
+  document.getElementById('anthropic-key-status').textContent =
+    key ? '✅ 저장됨 — Claude 문제 생성 활성화' : '키 없음 — 내장 문제은행 사용';
+}
+
+function initAnthropicKey() {
+  const key = localStorage.getItem('opic_anthropic_key') || '';
+  const model = localStorage.getItem('opic_anthropic_model') || 'claude-opus-4-8';
+  const modelSelect = document.getElementById('anthropic-model-select');
+  if (modelSelect) modelSelect.value = model;
+  if (!key) return;
+  document.getElementById('anthropic-key-input').value = key;
+  document.getElementById('anthropic-key-status').textContent = '✅ 저장됨 — Claude 문제 생성 활성화';
+}
+
+/* ──────────────────────────────────────
+   TIMER
+────────────────────────────────────── */
+function startTimer() {
+  stopTimer();
+  state.timerInterval = setInterval(() => {
+    if (state.timeLeft <= 0) {
+      stopTimer();
+      nextQuestion(); // 문항 시간 초과 → 자동 다음 문제
+      return;
+    }
+    state.timeLeft--;
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+// 문항별 타이머 UI 제거 (실제 OPIc에는 문항별 카운트 없음) — 내부 시간만 추적
+function updateTimerUI() {}
+
+/* ──────────────────────────────────────
+   전체 시험 시간 (60분 · 난이도 3-6 = 15문항 기준)
+────────────────────────────────────── */
+function startTotalTimer() {
+  stopTotalTimer();
+  state.totalTimeLeft = 60 * 60;
+  updateTotalTimeUI(state.totalTimeLeft);
+  state.totalTimerInterval = setInterval(() => {
+    if (state.totalTimeLeft <= 0) {
+      stopTotalTimer();
+      const endP = state._stopPromise
+        ? Promise.race([state._stopPromise, new Promise(r => setTimeout(r, 1500))])
+        : Promise.resolve();
+      endP.then(() => showResults());
+      return;
+    }
+    state.totalTimeLeft--;
+    updateTotalTimeUI(state.totalTimeLeft);
+  }, 1000);
+}
+
+function stopTotalTimer() {
+  if (state.totalTimerInterval) {
+    clearInterval(state.totalTimerInterval);
+    state.totalTimerInterval = null;
+  }
+}
+
+function updateTotalTimeUI(sec) {
+  const el = document.getElementById('total-time');
+  if (!el) return;
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  el.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  el.style.color = sec <= 60 ? 'var(--danger)' : sec <= 300 ? '#f59e0b' : '';
+}
+
+/* ──────────────────────────────────────
+   RECORDING – MediaRecorder
+────────────────────────────────────── */
+async function toggleRecording() {
+  if (state.isRecording) {
+    forceStopRecording();
+    // 타이머는 답변 페이즈 동안 계속 진행
+  } else {
+    await startRecording();
+  }
+}
+
+async function startRecording() {
+  if (state.isRecording || state._recStarting) return;
+  state._recStarting = true;
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw Object.assign(new Error(), { name: 'NotSupported' });
+    const stream = await getMicStream();
+
+    const mimeType = ['audio/webm', 'audio/mp4', 'audio/ogg']
+      .find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+    state.audioChunks  = [];
+    const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    state.mediaRecorder = mr;
+    // ref 객체로 stop 시점의 index를 캡처 (race condition 방지)
+    const ref = { index: state.currentIndex };
+    state._recRef = ref;
+
+    let resolveStop;
+    state._stopPromise = new Promise(r => { resolveStop = r; });
+
+    mr.ondataavailable = e => {
+      if (e.data && e.data.size > 0) state.audioChunks.push(e.data);
+    };
+    mr.onstop = () => {
+      const blob = new Blob(state.audioChunks, { type: mimeType || 'audio/webm' });
+      state.recordings[ref.index] = blob;
+      resolveStop();
+    };
+
+    mr.start(100);
+    state.isRecording = true;
+    document.getElementById('btn-mic').classList.add('recording');
+    document.getElementById('rec-label').style.opacity = '1';
+
+  } catch (err) {
+    const msg = err.name === 'NotAllowedError'
+      ? '마이크 권한이 필요합니다.\n브라우저 주소창의 자물쇠 아이콘에서 마이크를 허용해주세요.'
+      : err.name === 'NotFoundError'
+      ? '마이크를 찾을 수 없습니다. 장치를 확인해주세요.'
+      : '이 브라우저/환경에서는 녹음을 지원하지 않습니다.';
+    alert(msg);
+    console.error('[OPIc] getUserMedia error:', err.name, err);
+  } finally {
+    state._recStarting = false;
+  }
+}
+
+function forceStopRecording() {
+  clearTimeout(state._micWatchdog);
+  state._micWatchdog = null;
+  if (!state.isRecording) return;
+  state.isRecording = false;
+  document.getElementById('btn-mic').classList.remove('recording');
+  document.getElementById('rec-label').style.opacity = '0';
+
+  if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+    // stop 직전에 저장할 index를 확정 (nextQuestion이 index를 올리기 전)
+    if (state._recRef) state._recRef.index = state.currentIndex;
+    state.mediaRecorder.stop();
+  }
+  state.mediaRecorder = null;
+}
+
+/* ──────────────────────────────────────
+   NEXT QUESTION / FINISH
+────────────────────────────────────── */
+function nextQuestion() {
+  stopTimer();
+  stopPrepCountdown();
+  forceStopRecording();
+  cancelTTS();
+
+  if (state.currentIndex < state.questions.length - 1) {
+    state.currentIndex++;
+    renderQuestion();
+  } else {
+    // 마지막 문항 → onstop 완료 후 결과 화면 (1.5초 타임아웃으로 hang 방지)
+    document.getElementById('progress-fill').style.width = '100%';
+    const endP = state._stopPromise
+      ? Promise.race([state._stopPromise, new Promise(r => setTimeout(r, 1500))])
+      : Promise.resolve();
+    endP.then(() => showResults());
+  }
+}
+
+/* ──────────────────────────────────────
+   RESULTS
+────────────────────────────────────── */
+function showResults() {
+  stopTotalTimer();
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+
+  // 이전 objectUrl 정리 후 새로 생성
+  state.objectUrls.forEach(u => URL.revokeObjectURL(u));
+  state.objectUrls = [];
+
+  state.questions.forEach((q, i) => {
+    const blob    = state.recordings[i];
+    let audioHtml = '<p class="no-rec">녹음 없음</p>';
+
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      state.objectUrls.push(url);
+      const ext = blob.type.includes('mp4') ? 'm4a'
+                : blob.type.includes('ogg')  ? 'ogg'
+                : 'webm';
+      audioHtml = `
+        <div class="result-audio">
+          <audio controls src="${url}"></audio>
+          <a class="dl-link" href="${url}" download="opic_q${i + 1}.${ext}">⬇ 녹음 다운로드 (${ext})</a>
+        </div>`;
+    }
+
+    const item = document.createElement('div');
+    item.className = 'result-item';
+    item.innerHTML = `
+      <div class="result-item-header">
+        <div class="result-num">${i + 1}</div>
+        <span class="cat-badge">${escHtml(q.category || '')}</span>
+      </div>
+      <div class="result-q">${escHtml(q.text)}</div>
+      ${audioHtml}
+      <textarea class="result-memo" placeholder="자가 채점 메모를 입력하세요…"></textarea>
+    `;
+    list.appendChild(item);
+  });
+
+  releaseMicStream();
+  goTo('screen-results');
+}
+
+/* ──────────────────────────────────────
+   RESULTS EXPORT
+────────────────────────────────────── */
+function buildResultsText() {
+  const lines = [`[OPIc 모의고사 결과] 난이도: ${state.difficulty} | 총 ${state.questions.length}문항`, ''];
+  state.questions.forEach((q, i) => {
+    lines.push(`Q${i + 1} [${q.category || ''}]`);
+    lines.push(q.text);
+    lines.push(state.recordings[i] ? '답변: 녹음 완료 ✅' : '답변: 녹음 없음 ❌');
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+
+function copyResults() {
+  navigator.clipboard.writeText(buildResultsText()).then(() => {
+    const toast = document.getElementById('copy-toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1800);
+  });
+}
+
+function downloadResults() {
+  const text = buildResultsText();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+  a.download = `opic_results_${state.difficulty}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function downloadTranscript() {
+  const btn = document.getElementById('btn-transcript');
+  const originalText = btn ? btn.textContent : '';
+  const apiKey = localStorage.getItem('opic_openai_key');
+  const now = new Date();
+  const stamp = now.toISOString().replace(/[:.]/g, '-');
+
+  if (btn) btn.disabled = true;
+
+  try {
+    if (apiKey) {
+      const total = state.questions.length;
+      const lines = [
+        `[OPIc 모의고사 전사 결과]`,
+        `난이도: ${state.difficulty} | 총 ${total}문항 | 생성시각: ${now.toLocaleString()}`,
+        ''
+      ];
+
+      for (let i = 0; i < total; i++) {
+        const q = state.questions[i];
+        const blob = state.recordings[i];
+        let answerText = '(녹음 없음)';
+
+        if (blob) {
+          if (btn) btn.textContent = `🎤 전사 중… (${i + 1}/${total})`;
+          try {
+            const ext = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+            const fd = new FormData();
+            fd.append('file', blob, `q${i + 1}.${ext}`);
+            fd.append('model', 'whisper-1');
+            fd.append('language', 'en');
+            const r = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${apiKey}` },
+              body: fd
+            });
+            const j = await r.json().catch(() => ({}));
+            answerText = r.ok ? (j.text || '(전사 실패)') : `(전사 실패 HTTP ${r.status})`;
+          } catch (e) {
+            answerText = `(전사 오류: ${e.message})`;
+          }
+        }
+
+        lines.push('='.repeat(60));
+        lines.push(`[문항 ${i + 1}] ${q.category || ''} · ${q.type || ''} (${q.time || 0}s)`);
+        lines.push(`Q: ${q.text}`);
+        lines.push(`A: ${answerText}`);
+        lines.push('');
+      }
+
+      const text = lines.join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+      a.download = `opic_전사_${stamp}.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+    } else {
+      const audio = [];
+      for (let i = 0; i < state.recordings.length; i++) {
+        const blob = state.recordings[i];
+        if (!blob) continue;
+        const b64 = await new Promise((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload  = () => resolve(String(fr.result).split(',')[1] || '');
+          fr.onerror = reject;
+          fr.readAsDataURL(blob);
+        });
+        audio.push({ n: i + 1, type: blob.type, b64 });
+      }
+
+      const bundle = {
+        createdAt: now.toISOString(),
+        difficulty: state.difficulty,
+        questions: state.questions.map((q, i) => ({
+          n: i + 1,
+          category: q.category,
+          type: q.type,
+          time: q.time,
+          text: q.text,
+          hasAudio: !!state.recordings[i]
+        })),
+        audio
+      };
+
+      const json = JSON.stringify(bundle, null, 2);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
+      a.download = `opic_bundle_${stamp}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+      alert('OpenAI 키가 없어 음성→텍스트 변환은 불가합니다. 대신 오디오+문제 묶음(.json) 하나를 저장했습니다. 로컬 Whisper 등으로 전사할 수 있습니다.');
+    }
+  } catch (e) {
+    console.error('[OPIc] 전사/저장 오류:', e);
+    alert('전사/저장 중 오류가 발생했습니다: ' + (e && e.message ? e.message : e));
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+}
+
+/* ──────────────────────────────────────
+   NEW SESSION
+────────────────────────────────────── */
+function newSession() {
+  stopTimer();
+  stopTotalTimer();
+  stopPrepCountdown();
+  releaseMicStream();
+  forceStopRecording();
+  cancelTTS();
+
+  // objectUrl 정리
+  state.objectUrls.forEach(u => URL.revokeObjectURL(u));
+  state.objectUrls = [];
+
+  // state 초기화
+  state.recordings   = [];
+  state.questions    = [];
+  state.currentIndex = 0;
+  state.difficulty   = '';
+
+  // UI 초기화
+  document.querySelectorAll('.diff-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btn-start').disabled = true;
+
+  goTo('screen-intro');
+}
+
+/* ──────────────────────────────────────
+   INIT – 서베이 복원
+────────────────────────────────────── */
+restoreSurvey();
+updateSurveyCounter();
+initTtsKey();
+initAnthropicKey();
+</script>
+</body>
+</html>
