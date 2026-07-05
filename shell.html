@@ -1483,6 +1483,36 @@ function downloadResults() {
   URL.revokeObjectURL(a.href);
 }
 
+/* 오디오 Blob → 16kHz mono Float32Array (브라우저 Whisper 입력 규격) */
+async function blobToPCM16k(blob) {
+  const buf = await blob.arrayBuffer();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const tmp = new AC();
+  const audio = await tmp.decodeAudioData(buf.slice(0));
+  tmp.close && tmp.close();
+
+  let ch0 = audio.getChannelData(0);
+  if (audio.numberOfChannels > 1) {
+    const ch1 = audio.getChannelData(1);
+    const mixed = new Float32Array(ch0.length);
+    for (let i = 0; i < ch0.length; i++) mixed[i] = (ch0[i] + ch1[i]) / 2;
+    ch0 = mixed;
+  }
+
+  const ratio = 16000 / audio.sampleRate;
+  if (ratio === 1) return ch0;
+  const outLen = Math.round(ch0.length * ratio);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    const t = i / ratio;
+    const i0 = Math.floor(t);
+    const i1 = Math.min(i0 + 1, ch0.length - 1);
+    const f = t - i0;
+    out[i] = ch0[i0] * (1 - f) + ch0[i1] * f;
+  }
+  return out;
+}
+
 async function downloadTranscript() {
   const btn = document.getElementById('btn-transcript');
   const originalText = btn ? btn.textContent : '';
@@ -1541,41 +1571,113 @@ async function downloadTranscript() {
       URL.revokeObjectURL(a.href);
 
     } else {
-      const audio = [];
-      for (let i = 0; i < state.recordings.length; i++) {
-        const blob = state.recordings[i];
-        if (!blob) continue;
-        const b64 = await new Promise((resolve, reject) => {
-          const fr = new FileReader();
-          fr.onload  = () => resolve(String(fr.result).split(',')[1] || '');
-          fr.onerror = reject;
-          fr.readAsDataURL(blob);
-        });
-        audio.push({ n: i + 1, type: blob.type, b64 });
+      // 키 없음: 브라우저 내 Whisper(WASM) 전사 시도, 실패 시 번들 .json 폴백
+      try {
+        const total = state.questions.length;
+        const anyRecording = state.recordings.some(Boolean);
+
+        let asr = null;
+        let succeeded = 0;
+        if (anyRecording) {
+          if (btn) btn.textContent = '🤖 모델 준비 중… 0%';
+          const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+          env.allowLocalModels = false; // HF Hub에서만 로드
+
+          if (!window._asr) {
+            window._asr = await pipeline('automatic-speech-recognition', 'Xenova/whisper-base.en', {
+              progress_callback: (p) => {
+                if (btn && p && Number.isFinite(p.progress)) {
+                  const pct = Math.max(0, Math.min(100, Math.round(p.progress)));
+                  btn.textContent = `🤖 모델 준비 중… ${pct}%`;
+                }
+              }
+            });
+          }
+          asr = window._asr;
+        }
+
+        const lines = [
+          `[OPIc 모의고사 전사 결과]`,
+          `난이도: ${state.difficulty} | 총 ${total}문항 | 생성시각: ${now.toLocaleString()}`,
+          ''
+        ];
+
+        for (let i = 0; i < total; i++) {
+          const q = state.questions[i];
+          const blob = state.recordings[i];
+          let answerText = '(녹음 없음)';
+
+          if (blob && asr) {
+            if (btn) btn.textContent = `🎤 전사 중… (${i + 1}/${total})`;
+            try {
+              const pcm = await blobToPCM16k(blob);
+              const res = await asr(pcm, { chunk_length_s: 30 });
+              const t = res && res.text ? res.text.trim() : '';
+              if (t) { answerText = t; succeeded++; }
+              else { answerText = '(전사 실패)'; }
+            } catch (e) {
+              answerText = `(전사 오류: ${e.message})`;
+            }
+          }
+
+          lines.push('='.repeat(60));
+          lines.push(`[문항 ${i + 1}] ${q.category || ''} · ${q.type || ''} (${q.time || 0}s)`);
+          lines.push(`Q: ${q.text}`);
+          lines.push(`A: ${answerText}`);
+          lines.push('');
+        }
+
+        // 녹음이 있는데 전 문항 전사 실패 → 번들(.json) 폴백으로 넘김
+        if (anyRecording && succeeded === 0) {
+          throw new Error('브라우저 전사가 모든 문항에서 실패했습니다');
+        }
+
+        const text = lines.join('\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+        a.download = `opic_전사_${stamp}.txt`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+
+      } catch (e) {
+        console.error('[OPIc] 브라우저 Whisper 전사 실패, 번들로 폴백:', e);
+
+        const audio = [];
+        for (let i = 0; i < state.recordings.length; i++) {
+          const blob = state.recordings[i];
+          if (!blob) continue;
+          const b64 = await new Promise((resolve, reject) => {
+            const fr = new FileReader();
+            fr.onload  = () => resolve(String(fr.result).split(',')[1] || '');
+            fr.onerror = reject;
+            fr.readAsDataURL(blob);
+          });
+          audio.push({ n: i + 1, type: blob.type, b64 });
+        }
+
+        const bundle = {
+          createdAt: now.toISOString(),
+          difficulty: state.difficulty,
+          questions: state.questions.map((q, i) => ({
+            n: i + 1,
+            category: q.category,
+            type: q.type,
+            time: q.time,
+            text: q.text,
+            hasAudio: !!state.recordings[i]
+          })),
+          audio
+        };
+
+        const json = JSON.stringify(bundle, null, 2);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
+        a.download = `opic_bundle_${stamp}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+
+        alert('브라우저 내 전사에 실패하여 오디오+문제 묶음(.json)을 대신 저장했습니다. 인터넷 연결/브라우저를 확인하거나 로컬 Whisper로 전사하세요.');
       }
-
-      const bundle = {
-        createdAt: now.toISOString(),
-        difficulty: state.difficulty,
-        questions: state.questions.map((q, i) => ({
-          n: i + 1,
-          category: q.category,
-          type: q.type,
-          time: q.time,
-          text: q.text,
-          hasAudio: !!state.recordings[i]
-        })),
-        audio
-      };
-
-      const json = JSON.stringify(bundle, null, 2);
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([json], { type: 'application/json;charset=utf-8' }));
-      a.download = `opic_bundle_${stamp}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-
-      alert('OpenAI 키가 없어 음성→텍스트 변환은 불가합니다. 대신 오디오+문제 묶음(.json) 하나를 저장했습니다. 로컬 Whisper 등으로 전사할 수 있습니다.');
     }
   } catch (e) {
     console.error('[OPIc] 전사/저장 오류:', e);

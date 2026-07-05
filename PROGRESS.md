@@ -109,5 +109,19 @@ merge_script.py 같은 별도 병합 스크립트는 없다. `index.html`은 `sh
 - **#1 녹음→텍스트 다운로드** — 결과화면 "🎤 전사본 다운로드" 버튼 + `downloadTranscript()`. OpenAI 키(`opic_openai_key`) 있으면 Whisper(`whisper-1`, en)로 각 녹음 전사→문제+답변 결합 `.txt`(파일 확장자는 blob.type로 파생: webm/m4a/ogg, Safari 대응; HTTP 실패는 `(전사 실패 HTTP N)`; 개별 실패는 continue). 키 없으면 오디오(base64)+문제 단일 번들 `.json`(다중 다운로드 차단 회피) + 안내 alert. 전체 try/catch/finally로 버튼 복구.
 - 검증: `<script>` `new Function` 문법 OK, `diff -q shell.html index.html` identical. code-reviewer COMMENT(Critical/High 0, #4 견고성 SOUND) → MEDIUM 2건(Safari 확장자·초기재생 다시듣기 마이크 지연)+LOW 반영 완료.
 
-### 참고: 로컬 whisper 전사 절차(키 없을 때)
+### 참고: 로컬 whisper 전사 절차(키 없을 때) — 구버전, 아래 브라우저 내 전사로 대체됨
 번들 대신 개별 오디오를 받았거나 키가 없을 때: 브라우저에서 오디오+questions.json 저장 → macOS TCC로 `~/Downloads` 직접접근 불가 시 Finder(osascript)로 접근가능 폴더 복사 → `whisper <file> --model medium --language en --output_format txt`(파일당 개별 호출; 다중 인자 동시 전달은 실패) → questions.json과 짝지어 결합.
+
+## 키 없음 전사 경로를 브라우저 내 Whisper(WASM)로 교체 — 2026-07-05
+
+기존에는 OpenAI 키가 없으면 오디오+문제 번들(`.json`)만 저장하고 끝났다(로컬 whisper CLI로 수동 전사 필요). 이제 키가 없어도 **브라우저 안에서 transformers.js(Xenova/whisper-base.en, WASM)로 직접 전사**하여 키 있음 경로와 동일한 결합 `.txt`를 바로 다운로드한다.
+
+- **`blobToPCM16k(blob)`** (신규, shell.html:1487-1512, `downloadTranscript` 바로 앞): 오디오 Blob → `AudioContext.decodeAudioData` → 모노 다운믹스(2채널 평균) → 선형보간으로 16kHz 리샘플 → `Float32Array` 반환. Whisper 파이프라인 입력 규격에 맞춤.
+- **`downloadTranscript()` else 분기 교체** (shell.html:1573-1671, 키 없음 경로): 우선순위 (a) 키 있음→기존 OpenAI Whisper API(무변경) → (b) 키 없음→브라우저 Whisper 전사 → (c) 브라우저 전사 자체가 실패(CDN/네트워크/WASM 초기화 등)하면 기존 번들 `.json` 폴백.
+  - `state.recordings`에 녹음이 하나라도 있을 때만 `https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2`를 동적 `import()`(앱 로드 시엔 미로드, 필요할 때만 fetch). `env.allowLocalModels = false`로 HF Hub에서만 모델 로드.
+  - 파이프라인은 `window._asr`에 캐시(`if (!window._asr) window._asr = await pipeline('automatic-speech-recognition','Xenova/whisper-base.en',{progress_callback})`) — 같은 세션에서 재실행해도 모델 재다운로드 없음.
+  - 진행 표시: 모델 다운로드 중 `progress_callback`이 버튼 텍스트를 `🤖 모델 준비 중… NN%`로 갱신(`p.progress`를 그때그때 반영, 별도 누적/최댓값 로직 없이 단순화). 전사 단계는 문항별로 `🎤 전사 중… (i/총)`.
+  - 각 녹음은 `blobToPCM16k` → `asr(pcm, {language:'english', task:'transcribe'})` → `res.text.trim()` (빈 문자열이면 `(전사 실패)`). 문항별 전사 실패는 `(전사 오류: …)`로 표기하고 `continue`(전체 중단 안 함). 녹음 없는 문항은 `(녹음 없음)`. 결합 텍스트 포맷·구분선·헤더는 키 있음 경로와 완전히 동일 → `opic_전사_<stamp>.txt`.
+  - 이 내부 로직 전체를 자체 `try/catch`로 감싸 실패 시(트랜스포머 CDN 로드 실패, WASM 초기화 실패, decode 실패 등) 기존 번들 `.json` 저장 경로로 폴백하고, 안내 문구를 "브라우저 내 전사에 실패하여 오디오+문제 묶음(.json)을 대신 저장했습니다. 인터넷 연결/브라우저를 확인하거나 로컬 Whisper로 전사하세요."로 변경. 바깥쪽 최상위 try/catch/finally(버튼 텍스트/disabled 복구)는 기존 그대로 유지·확장.
+  - 키 있음 경로(OpenAI API 호출부), TTS, 녹음, 결과화면 로직은 전혀 손대지 않음(회귀 없음).
+- **검증**: `<script>` 블록을 node `new Function`으로 문법 검사 — 오류 0. `diff -q shell.html index.html` → identical (`cp shell.html index.html` 수행).
