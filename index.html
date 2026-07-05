@@ -1586,7 +1586,7 @@ async function downloadTranscript() {
           try { env.backends.onnx.wasm.numThreads = 1; } catch (_) {}
 
           if (!window._asr) {
-            window._asr = await pipeline('automatic-speech-recognition', 'Xenova/whisper-base.en', {
+            window._asr = await pipeline('automatic-speech-recognition', 'Xenova/whisper-small.en', {
               progress_callback: (p) => {
                 if (btn && p && Number.isFinite(p.progress)) {
                   const pct = Math.max(0, Math.min(100, Math.round(p.progress)));
