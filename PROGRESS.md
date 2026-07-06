@@ -125,3 +125,55 @@ merge_script.py 같은 별도 병합 스크립트는 없다. `index.html`은 `sh
   - 이 내부 로직 전체를 자체 `try/catch`로 감싸 실패 시(트랜스포머 CDN 로드 실패, WASM 초기화 실패, decode 실패 등) 기존 번들 `.json` 저장 경로로 폴백하고, 안내 문구를 "브라우저 내 전사에 실패하여 오디오+문제 묶음(.json)을 대신 저장했습니다. 인터넷 연결/브라우저를 확인하거나 로컬 Whisper로 전사하세요."로 변경. 바깥쪽 최상위 try/catch/finally(버튼 텍스트/disabled 복구)는 기존 그대로 유지·확장.
   - 키 있음 경로(OpenAI API 호출부), TTS, 녹음, 결과화면 로직은 전혀 손대지 않음(회귀 없음).
 - **검증**: `<script>` 블록을 node `new Function`으로 문법 검사 — 오류 0. `diff -q shell.html index.html` → identical (`cp shell.html index.html` 수행).
+
+## 비교(비교) 문항 축 다양화 — 2026-07-07
+
+"돌발 비교 문항이 전부 과거vs현재 한 가지 패턴" 불만 해결. `questions.js`의 `text`만 교체(key/type/time/구조 불변).
+
+**SURPRISE_TOPICS 20개 — 비교 축 배분**
+
+| 주제 | 축 | 주제 | 축 |
+|---|---|---|---|
+| 날씨 | 상황(계절) | 호텔 | A vs B(호텔 vs 게스트하우스/에어비앤비) |
+| 건강 | 세대 | 약속 | 세대 |
+| 은행 | A vs B(지점 vs 모바일뱅킹) | 유명인사 | 우리나라 vs 다른나라 |
+| 재활용 | 우리나라 vs 다른나라 | 전화통화 | 과거vs현재(유지) |
+| 테크놀로지 | 과거vs현재(유지) | 지리 | 장소 |
+| 대중교통 | A vs B(대중교통 vs 자가용) | 음식 배달 | 온라인vs오프라인 |
+| 외식/식당 | 장소(고급식당 vs 동네식당) | 지역 축제 | 상황(여름vs겨울) |
+| 명절 | 세대 | | |
+| 병원 | 장소(대학병원 vs 동네의원) | | |
+| 패션 | 우리나라 vs 다른나라 | | |
+| 가구 | 온라인vs오프라인 | | |
+| 여가시간 | 상황(평일vs주말) | | |
+| 인터넷 서핑 | 과거vs현재(유지) | | |
+
+과거vs현재 유지는 3개(테크놀로지·인터넷 서핑·전화통화, 요구사항 "최대 4개" 이내)뿐이고 문구도 상투적 표현("over the years")을 피해 재작성. 축은 연속 배치 없이 고르게 순환(SIT/GEN/AB/NAT/PLACE/ONLINE 7종).
+
+**ADVANCE_TOPICS 4개 — 3번째(비교) 문항**: 기술 변화→세대 비교, 환경/기후변화→우리나라 vs 다른나라, 재택근무→사무실 vs 재택(A/B), 사회 트렌드→과거vs현재 1개만 유지(원문 그대로).
+
+**보너스**: SURPRISE_TOPICS 2번째(경험) 문항 중 "Tell me about a memorable experience you had ~" 패턴 12개 중 6개(건강·재활용·대중교통·패션·호텔·지리)의 서두를 "Have you ever…" / "Think back to a time when…" / "What happened the last time you…"로 변형(본문 내용은 그대로).
+
+**shell.html**: `generateQuestionsWithClaude`의 프롬프트에 "비교 문항은 과거vs현재 한 패턴만 쓰지 말고 두 대상/장소/세대/우리나라vs다른나라/온라인vs오프라인/상황 축을 골고루, 한 시험 내 반복 금지" 지시 추가.
+
+**검증**: `node -e "require('./questions.js')"` OK. 20개 전부 `[묘사,경험,비교]`, 어드밴스 4개 전부 `[이슈,의견,비교]` 유지 확인. 정규식 `/past to the present|over the years|past and the present/` 매치 — 돌발 0개(≤4), 어드밴스 1개(≤1). `diff -q shell.html index.html` identical.
+
+## 돌발-서베이 의미 중복 배제 — 2026-07-07
+
+"주거 개선"(서베이)을 고르면 "가구"(돌발)가 나와 사실상 동일 주제 중복 체감되는 문제 수정.
+
+- **`questions.js`**: `SURPRISE_TOPICS` 중 서베이와 의미가 겹치는 10개 주제에 `related: [...]` 필드(선택적, 서베이 HTML value와 정확히 일치하는 문자열 배열) 추가 — 건강/병원→`["헬스","운동 수업 수강하기","요가","조깅","걷기"]`, 은행→`["주식 투자"]`, 대중교통→`["차 드라이브 하기"]`, 외식/식당→`["요리하기","카페/커피 전문점 가기"]`, 패션→`["쇼핑하기"]`, 가구→`["주거 개선"]`, 인터넷 서핑→`["SNS 글 올리기"]`, 호텔→`["국내여행","해외여행","집에서 보내는 휴가","국내 출장","해외 출장"]`, 전화통화→`["친구들과 문자하기"]`. 나머지 10개(날씨·재활용·테크놀로지·명절·여가시간·약속·유명인사·지리·음식 배달·지역 축제)는 뚜렷한 중복이 없어 생략.
+- **`shell.html` `buildQuestions`**: 서베이 풀 생성 직후 선택된 모든 서베이 값(residence+leisure+hobbies+sports+travel)의 `Set`을 만들고, `shuffledSurprise`를 `related`가 그 Set과 겹치는지로 `conflictFreeSurprise`/`conflictingSurprise`로 분리 후 `concat`하여 `surprisePool`(충돌 주제는 뒤로 밀림, 하드 제외 아님)을 구성. 이후 콤보1 보완/콤보2/콤보3의 돌발 픽 3곳 모두 `shuffledSurprise` 대신 `surprisePool` 사용 — 다른 돌발 주제가 소진되면 그때만 충돌 주제가 안전망으로 쓰여 15문항 보장은 깨지지 않음.
+- **Claude 프롬프트**: 돌발 콤보 지시에 "서베이 선택 항목과 의미적으로 겹치지 않는 영역에서 고르라(예: '주거 개선' 선택 시 가구/인테리어 돌발 금지)" 문구 추가.
+- **검증**: node `vm` 샌드박스에서 실제 `buildQuestions`를 추출·실행. "주거 개선" 선택 500회 시뮬 → `돌발 · 가구` 출현 0회. 극단 케이스(서베이가 `related`에 등장하는 모든 키를 다 선택)에서도 500회 전부 15문항 유지(안전망 정상 작동). `node -e "require('./questions.js')"` 로드 OK, `diff -q shell.html index.html` identical.
+
+## 브라우저 전사(Whisper) Web Worker 분리 — 2026-07-07
+
+메인 스레드에서 WASM 추론이 돌면서 UI가 멈춘 것처럼 보이는 문제(진행률 텍스트 미갱신, small 모델은 문항당 수 분) 수정.
+
+- **`ASR_WORKER_SRC`**(shell.html, `downloadTranscript` 앞): transformers.js `pipeline`을 모듈 워커 안에서 로드·실행하는 워커 소스 문자열. `init`(모델 로드, progress 콜백 전달) / `transcribe`(pcm 전사, id로 매칭) 메시지 처리.
+- **`getAsrWorker(model, onProgress)`**: `window._asrWorker = {worker, model}`로 캐시. 같은 모델이면 재사용, 다르면 `terminate()` 후 재생성 → `new Worker(URL.createObjectURL(new Blob([ASR_WORKER_SRC],{type:'text/javascript'})), {type:'module'})`.
+- **`transcribeInWorker(worker, pcm, timeoutMs)`**: `postMessage({type:'transcribe', id, pcm}, [pcm.buffer])`(transferable)로 전송 후 Promise로 대기, 문항당 5분 타임아웃 시 reject(호출부에서 `(전사 시간 초과)`로 표기하고 다음 문항 계속 진행). `blobToPCM16k`(AudioContext 필요)는 기존대로 메인 스레드 유지.
+- **`downloadTranscript()` 키 없음 분기**: `pipeline` 직접 호출 대신 `getAsrWorker`/`transcribeInWorker` 사용. 모델 준비 중 `🤖 모델 준비 중… NN%`, 전사 중 `🎤 전사 중… (i/총) · M:SS`(1초 `setInterval`로 경과시간 갱신 — 워커 분리로 메인 스레드가 자유로워 정상 갱신됨, `finally`에서 인터벌 정리). 워커 생성 실패(구형 브라우저 등) 또는 전문항 실패 시 기존 번들 `.json` 폴백 그대로 유지.
+- **모델 선택 UI**: `#btn-transcript` 옆 `#stt-model-select`(`Xenova/whisper-base.en`="빠름(기본)" / `Xenova/whisper-small.en`="정확(느림)"), `localStorage.opic_stt_model`에 저장, `initSttModel()`이 페이지 로드시 복원(다른 `init*Key()` 호출과 동일 위치에서 실행). 기본값은 `base.en`(빠름).
+- **검증**: `<script>` 블록 node `new Function` 문법 검사 오류 0. `diff -q shell.html index.html` identical.

@@ -403,31 +403,33 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about the weather and seasons in your country. What is the climate like throughout the year, and which season do you like the most? Please describe it in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had related to the weather. Maybe there was a storm, a heat wave, or unusually beautiful weather. What happened, and how did it affect you?", time: 90, type: "경험" },
-      { text: "How has the weather or climate in your country changed over the years? Compare the weather you remember from the past to the weather now.", time: 110, type: "비교" }
+      { text: "Think about your favorite season and the season you like the least. Compare what you typically do during each one — the activities, the mood, and how you spend your time. Which season do you prefer overall, and why?", time: 110, type: "비교" }
     ]
   },
   {
     key: "건강",
+    related: ["헬스", "운동 수업 수강하기", "요가", "조깅", "걷기"],
     questions: [
       { text: "Tell me about how you take care of your health. What do you usually do to stay healthy, and how often do you visit the doctor or hospital? Please describe your habits in detail.", time: 90, type: "묘사" },
-      { text: "Tell me about a memorable experience you had at a hospital or clinic. Why did you go, what happened, and how did everything turn out?", time: 90, type: "경험" },
-      { text: "Compare how you took care of your health in the past to how you do it now. What has changed in your habits or attitude toward health?", time: 110, type: "비교" }
+      { text: "Have you ever had a memorable experience at a hospital or clinic? Why did you go, what happened, and how did everything turn out?", time: 90, type: "경험" },
+      { text: "Compare how younger people in your country generally take care of their health to how older generations, such as your parents, tend to do it. What differences do you notice in their habits, attitudes, or the kinds of exercise and diet they follow?", time: 110, type: "비교" }
     ]
   },
   {
     key: "은행",
+    related: ["주식 투자"],
     questions: [
       { text: "Tell me about a typical bank employee or banker in Korea. What do they look like, and what kinds of tasks are they responsible for? Please describe in detail.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had at a bank or while handling a financial matter. What happened, and how did you deal with it?", time: 90, type: "경험" },
-      { text: "How has banking changed over the years? Compare the way people used to handle their money and banking to how they do it now with online and mobile banking.", time: 110, type: "비교" }
+      { text: "Compare visiting a bank branch in person to using a mobile banking app. What are the advantages and disadvantages of each, and which method do you personally prefer for handling your banking?", time: 110, type: "비교" }
     ]
   },
   {
     key: "재활용",
     questions: [
       { text: "Tell me about how recycling works where you live. How do people sort and dispose of their waste, and what rules do you follow? Please describe the process in detail.", time: 90, type: "묘사" },
-      { text: "Tell me about a memorable experience you had related to recycling or protecting the environment. What did you do, and why does it stand out in your memory?", time: 90, type: "경험" },
-      { text: "How has people's attitude toward recycling and the environment changed over the years? Compare the past to the present.", time: 110, type: "비교" }
+      { text: "Think back to a time when something memorable happened related to recycling or protecting the environment. What did you do, and why does it stand out in your memory?", time: 90, type: "경험" },
+      { text: "Compare how recycling and waste separation are handled in your country to how they are done in another country you know about. What are the biggest differences in the rules, the habits of the people, or how strictly they are enforced?", time: 110, type: "비교" }
     ]
   },
   {
@@ -435,23 +437,25 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about the role technology plays in your everyday life. What devices or digital tools do you find yourself relying on, and how have they become part of your daily routine?", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had related to technology or the internet. Maybe a new device changed your life, or you faced a technical problem. What happened?", time: 90, type: "경험" },
-      { text: "How has technology and the internet changed the way you live? Compare your daily life before and after these technologies became common.", time: 110, type: "비교" }
+      { text: "Compare your everyday life before smartphones and high-speed internet became common to your life now. What are the biggest differences you notice, and would you say the changes have mostly made life better or more complicated?", time: 110, type: "비교" }
     ]
   },
   {
     key: "대중교통",
+    related: ["차 드라이브 하기"],
     questions: [
       { text: "Tell me about the public transportation system where you live. What options are available to people, and which form do most people tend to use? Please give me a detailed description.", time: 90, type: "묘사" },
-      { text: "Tell me about a memorable experience you had while using public transportation. Maybe something unexpected happened on your commute. What was it, and how did you handle it?", time: 90, type: "경험" },
-      { text: "How has transportation in your area changed over the years? Compare the way people got around in the past to how they do it now.", time: 110, type: "비교" }
+      { text: "What happened the last time something memorable occurred while you were using public transportation? Maybe something unexpected happened on your commute. What was it, and how did you handle it?", time: 90, type: "경험" },
+      { text: "Compare taking public transportation to driving your own car to get around your area. What are the benefits and drawbacks of each option, and which one do you usually choose?", time: 110, type: "비교" }
     ]
   },
   {
     key: "외식/식당",
+    related: ["요리하기", "카페/커피 전문점 가기"],
     questions: [
       { text: "Tell me about a restaurant you like to go to. What kind of food do they serve, what is the atmosphere like, and why do you enjoy going there? Please describe it in detail.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable dining experience you had at a restaurant. Who were you with, what did you eat, and why was it so special?", time: 90, type: "경험" },
-      { text: "How have restaurants or eating habits in your country changed over the years? Compare the past to the present.", time: 110, type: "비교" }
+      { text: "Compare eating at an upscale, expensive restaurant to eating at a small, casual local eatery. What is different about the food, the atmosphere, and the overall experience, and which type of place do you prefer?", time: 110, type: "비교" }
     ]
   },
   {
@@ -459,31 +463,34 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about an important holiday or traditional celebration in your country. When is it, and how do people usually celebrate it? Please describe it in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had during a holiday or traditional celebration. What did you do, who were you with, and why was it memorable?", time: 90, type: "경험" },
-      { text: "How have holidays or traditional celebrations changed over the years? Compare the way people celebrated in the past to how they do it now.", time: 110, type: "비교" }
+      { text: "Compare how your grandparents' or parents' generation traditionally celebrated this holiday to how your generation celebrates it today. What customs have stayed the same, and what has changed?", time: 110, type: "비교" }
     ]
   },
   {
     key: "병원",
+    related: ["헬스", "운동 수업 수강하기", "요가", "조깅", "걷기"],
     questions: [
       { text: "Describe a clinic or hospital that you visit regularly. What does it look like inside, and what kinds of services does it offer? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you had to visit a hospital or clinic unexpectedly. What was wrong, how did the visit go, and how did the experience affect you?", time: 90, type: "경험" },
-      { text: "How has visiting a doctor or hospital changed compared to the past? Think about things like waiting times, the use of technology, or the way doctors interact with patients, and compare the past and present in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare going to a large general hospital to visiting a small neighborhood clinic when you are not feeling well. What are the differences in waiting times, cost, and the quality of care, and which do you usually choose?", time: 110, type: "비교" }
     ]
   },
   {
     key: "패션",
+    related: ["쇼핑하기"],
     questions: [
       { text: "Describe your personal sense of style and the kinds of clothing you typically wear. What brands, colors, or styles do you prefer, and why? Please describe in as much detail as possible.", time: 90, type: "묘사" },
-      { text: "Tell me about a memorable experience you had while shopping for clothes. What were you looking for, what happened during the trip, and what made that experience stand out? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has fashion changed in your country over the past decade? Compare the styles and trends people followed in the past with what is popular today, and explain the differences in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Have you ever had a memorable experience while shopping for clothes? What were you looking for, what happened during the trip, and what made that experience stand out? Please describe in as much detail as possible.", time: 90, type: "경험" },
+      { text: "Compare fashion trends in your country to fashion trends in another country you are familiar with. What are the biggest differences in style, colors, or what people consider fashionable? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
     key: "가구",
+    related: ["주거 개선"],
     questions: [
       { text: "Describe the furniture in your home or the room you spend the most time in. What pieces do you have, how are they arranged, and what do you like about them? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you bought a new piece of furniture or rearranged your living space. What did you get or change, and how did it affect the feel of your home? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How have people's preferences for furniture and home furnishings changed over the years? Compare the styles and materials that were popular in the past with what people prefer today, and explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare buying furniture at a physical furniture store to buying it online. What are the advantages and disadvantages of each method, and which one would you choose the next time you need a new piece of furniture? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
@@ -491,23 +498,25 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe how you typically spend your free time. What activities do you enjoy most, and who do you usually spend your leisure time with? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a particularly enjoyable leisure activity you took part in recently. What did you do, where did you go, and what made it so memorable? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has the way people spend their leisure time changed compared to the past? Compare how people used to relax and enjoy their free time with the ways they do so today, and explain the differences in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare how you spend your free time on weekdays to how you spend it on weekends. What kinds of activities do you do differently, and which do you enjoy more? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
     key: "인터넷 서핑",
+    related: ["SNS 글 올리기"],
     questions: [
       { text: "Describe your typical internet browsing habits. What kinds of websites or apps do you visit most often, and what do you usually look for or do online? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you found something particularly useful or surprising while browsing the internet. What were you searching for, what did you discover, and how did it impact you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has internet use changed over the past ten to fifteen years? Compare the way people browsed the internet in the past — the sites they visited, the devices they used, and the reasons they went online — with how they use it today.", time: 110, type: "비교" }
+      { text: "Compare how you browsed the internet ten or fifteen years ago — the sites you visited, the devices you used — to how you use the internet today. What has changed the most about your online habits?", time: 110, type: "비교" }
     ]
   },
   {
     key: "호텔",
+    related: ["국내여행", "해외여행", "집에서 보내는 휴가", "국내 출장", "해외 출장"],
     questions: [
       { text: "Describe your ideal hotel stay. What kind of hotel do you prefer, and what amenities, services, or features are most important to you? Please describe in as much detail as possible.", time: 90, type: "묘사" },
-      { text: "Tell me about a memorable hotel stay you have had. Where was the hotel, what was it like, and what made that stay stand out — whether for a good reason or a bad one? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How have hotels and the services they offer changed over the years? Compare what staying at a hotel was like in the past with what the experience is like today, and explain the differences in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Think back to a memorable hotel stay you have had. Where was the hotel, what was it like, and what made that stay stand out — whether for a good reason or a bad one? Please describe in as much detail as possible.", time: 90, type: "경험" },
+      { text: "Compare staying at a hotel to staying at a guesthouse or an Airbnb-style rental when you travel. What are the benefits of each option, and which do you usually choose for your trips? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
@@ -515,31 +524,32 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe how you typically make plans or appointments with your friends, family, or colleagues. What methods or tools do you use to arrange meetings, and how do you keep track of your commitments? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you made plans with someone and things did not go as expected — perhaps the appointment was cancelled, you were late, or something unexpected came up. What happened, and how did you handle it? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has the way people make and manage plans or appointments changed compared to the past? Compare the methods people relied on before — like phone calls or written notes — with the tools and habits people have today, and explain the differences in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare how older generations, like your parents, typically arranged plans and appointments to how people your age do it today. What are the biggest differences in the methods or tools they use? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
     key: "유명인사",
     questions: [
       { text: "Describe a celebrity or well-known public figure that you find interesting or admire. Who are they, what are they famous for, and what qualities or achievements make them stand out to you? Please describe in as much detail as possible.", time: 90, type: "묘사" },
-      { text: "Tell me about a memorable experience you had that was related to a celebrity — such as attending their performance, watching a documentary about them, or following an important moment in their career. What happened, and why was it meaningful to you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has celebrity culture changed compared to the past? Compare how famous people were perceived and how fans followed them before the rise of social media with how things work today, and explain the differences in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Have you ever had a memorable experience related to a celebrity — such as attending their performance, watching a documentary about them, or following an important moment in their career? What happened, and why was it meaningful to you? Please describe in as much detail as possible.", time: 90, type: "경험" },
+      { text: "Compare the kind of celebrities that are popular in your country to the kind of celebrities that are popular internationally, such as in Hollywood. What differences do you notice in how they are perceived or how fans interact with them? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
     key: "전화통화",
+    related: ["친구들과 문자하기"],
     questions: [
       { text: "Describe your typical phone call habits. How often do you make or receive calls, who do you usually talk to, and what kinds of topics do you discuss? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable phone call you once had — perhaps one that brought surprising news, was emotionally difficult, or turned out to be especially important. What was the call about, and how did it affect you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has the way people communicate by phone changed over the years? Compare how people used phones in the past — the devices they had, the calls they made, and the role phone calls played in daily life — with how people use them today.", time: 110, type: "비교" }
+      { text: "Compare how people made phone calls twenty years ago — using landlines or pay phones — to how people communicate by phone today. What has changed the most about the role phone calls play in daily life?", time: 110, type: "비교" }
     ]
   },
   {
     key: "지리",
     questions: [
       { text: "Describe the geography of the region or country where you live. What are the major geographical features — such as mountains, rivers, coastlines, or plains — that define the landscape? Please describe in as much detail as possible.", time: 90, type: "묘사" },
-      { text: "Tell me about a memorable trip or journey you took within your own country where the natural scenery or geography made a strong impression on you. Where did you go, what did you see, and why was it so impactful? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has the landscape or geography of your region changed over the years? Compare what the area looked like in the past — in terms of nature, urban development, or land use — with how it looks today, and explain the changes in as much detail as possible.", time: 110, type: "비교" }
+      { text: "What happened the last time you took a trip or journey within your own country where the natural scenery or geography made a strong impression on you? Where did you go, what did you see, and why was it so impactful? Please describe in as much detail as possible.", time: 90, type: "경험" },
+      { text: "Compare the geography of the area where you currently live to the geography of another region or city in your country. What are the biggest differences in the landscape, climate, or natural surroundings? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
@@ -547,7 +557,7 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe how you typically order food for delivery. What kinds of food do you order most often, which apps or services do you use, and what is your usual routine when placing an order? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a particularly memorable food delivery experience — either an especially satisfying one or a time when something went wrong. What did you order, what happened, and how did it turn out? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How has food delivery changed compared to the past? Compare how people ordered and received food at home before delivery apps existed with the way delivery services work today, and explain the differences in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare ordering food for delivery through an app to going out and eating at a restaurant in person. What are the advantages and disadvantages of each, and which do you prefer when you don't feel like cooking? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   },
   {
@@ -555,7 +565,7 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe a local festival or community event that takes place in your area. What is it called, when does it happen, and what kinds of activities, performances, or food are featured? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had at a local festival or community event. What event did you attend, what did you do or see there, and why was it a memorable occasion for you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "How have local festivals or community events changed over the years in your area? Compare what these events used to be like — in terms of size, activities, and atmosphere — with what they are like today, and explain the differences in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare attending a local festival in the summer to attending one in the winter. How does the atmosphere, the food, or the activities differ depending on the season, and which type of festival do you enjoy more? Please explain in as much detail as possible.", time: 110, type: "비교" }
     ]
   }
 ];
@@ -599,7 +609,7 @@ const ADVANCE_TOPICS = [
     questions: [
       { text: "Technology has changed rapidly in recent years. Tell me about a technology or device that has had a big impact on people's daily lives. What is it, and how has it changed the way people live and work? Please explain in detail.", time: 90, type: "이슈" },
       { text: "Some people believe this technology has made life better, while others worry about its negative effects. What is your opinion? Discuss both the advantages and disadvantages, and explain what you think the future holds.", time: 110, type: "의견" },
-      { text: "Now, let's compare the past and the present. How was this area of life different ten or twenty years ago compared to today? Describe the biggest changes you have noticed, and explain whether you think these changes have mostly been for the better or for the worse.", time: 120, type: "비교" }
+      { text: "Now, let's compare generations. How differently do younger people and older generations, such as your parents, use or adapt to this technology? Describe the biggest differences you have noticed between how each generation approaches it, and explain what might account for these differences.", time: 120, type: "비교" }
     ]
   },
   {
@@ -607,7 +617,7 @@ const ADVANCE_TOPICS = [
     questions: [
       { text: "Environmental issues, such as climate change, have become a major concern around the world. Tell me about an environmental problem that affects your country. What is causing it, and how is it affecting people's lives? Please explain in as much detail as possible.", time: 90, type: "이슈" },
       { text: "What do you think should be done about this problem? Discuss what individuals, companies, and the government could do differently, and explain what kind of impact you think these changes would have in the future.", time: 110, type: "의견" },
-      { text: "Now, let's compare the past and the present. How has this environmental issue changed compared to ten or twenty years ago — has it gotten better or worse? Describe the differences you have noticed, and explain what you expect this issue to look like in the future.", time: 120, type: "비교" }
+      { text: "Now, let's compare countries. How does your country's approach to this environmental issue compare to the approach taken by another country you are familiar with? Describe the biggest differences in policies, public awareness, or results, and explain which approach you think is more effective.", time: 120, type: "비교" }
     ]
   },
   {
@@ -615,7 +625,7 @@ const ADVANCE_TOPICS = [
     questions: [
       { text: "The way people work has changed a great deal in recent years, with more people working remotely or in flexible arrangements. Tell me about how work has changed in your country. What are the main differences compared to the past? Please explain in detail.", time: 90, type: "이슈" },
       { text: "Some people think these changes in the way we work are positive, while others think they create new problems. What is your opinion on this trend? Discuss both sides and explain how you think work will continue to change in the future.", time: 110, type: "의견" },
-      { text: "Now, let's compare the past and the present. How different is the way people work today compared to ten or twenty years ago? Describe the biggest changes you have noticed, and explain how you think work will continue to evolve in the future.", time: 120, type: "비교" }
+      { text: "Now, let's compare working in an office to working remotely from home. What are the advantages and disadvantages of each arrangement, and which do you think is more effective for productivity and well-being?", time: 120, type: "비교" }
     ]
   },
   {
