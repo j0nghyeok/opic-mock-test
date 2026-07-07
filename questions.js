@@ -403,7 +403,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about the weather and seasons in your country. What is the climate like throughout the year, and which season do you like the most? Please describe it in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had related to the weather. Maybe there was a storm, a heat wave, or unusually beautiful weather. What happened, and how did it affect you?", time: 90, type: "경험" },
-      { text: "Think about your favorite season and the season you like the least. Compare what you typically do during each one — the activities, the mood, and how you spend your time. Which season do you prefer overall, and why?", time: 110, type: "비교" }
+      { text: "Think about your favorite season and the season you like the least. Compare what you typically do during each one — the activities, the mood, and how you spend your time. Which season do you prefer overall, and why?", time: 110, type: "비교" },
+      { text: "Some people say that weather has a big influence on people's mood and daily life, while others disagree. What is your opinion on this? Do you believe weather really affects how people feel and behave? Please explain your opinion in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think weather patterns seem to be changing in recent years, with more extreme heat, cold, or unpredictable conditions? What problems does this cause for people in their daily lives, and why do you think this is happening?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -412,7 +414,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about how you take care of your health. What do you usually do to stay healthy, and how often do you visit the doctor or hospital? Please describe your habits in detail.", time: 90, type: "묘사" },
       { text: "Have you ever had a memorable experience at a hospital or clinic? Why did you go, what happened, and how did everything turn out?", time: 90, type: "경험" },
-      { text: "Compare how younger people in your country generally take care of their health to how older generations, such as your parents, tend to do it. What differences do you notice in their habits, attitudes, or the kinds of exercise and diet they follow?", time: 110, type: "비교" }
+      { text: "Compare how younger people in your country generally take care of their health to how older generations, such as your parents, tend to do it. What differences do you notice in their habits, attitudes, or the kinds of exercise and diet they follow?", time: 110, type: "비교" },
+      { text: "Some people believe that staying healthy is entirely a personal responsibility, while others think society and the government should play a bigger role in promoting health. What is your opinion on this issue? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think so many people struggle to maintain healthy habits, such as exercising regularly or eating well? What problems get in the way, and why do you think these obstacles are so common?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -421,7 +425,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about a typical bank employee or banker in Korea. What do they look like, and what kinds of tasks are they responsible for? Please describe in detail.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had at a bank or while handling a financial matter. What happened, and how did you deal with it?", time: 90, type: "경험" },
-      { text: "Compare visiting a bank branch in person to using a mobile banking app. What are the advantages and disadvantages of each, and which method do you personally prefer for handling your banking?", time: 110, type: "비교" }
+      { text: "Compare visiting a bank branch in person to using a mobile banking app. What are the advantages and disadvantages of each, and which method do you personally prefer for handling your banking?", time: 110, type: "비교" },
+      { text: "Some people think banks should focus more on providing in-person service, while others believe everything should be handled digitally. What is your opinion about how banks should operate? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think many people find dealing with banks or financial institutions stressful or confusing? What kinds of problems do people commonly face, and what do you think causes them?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -429,7 +435,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about how recycling works where you live. How do people sort and dispose of their waste, and what rules do you follow? Please describe the process in detail.", time: 90, type: "묘사" },
       { text: "Think back to a time when something memorable happened related to recycling or protecting the environment. What did you do, and why does it stand out in your memory?", time: 90, type: "경험" },
-      { text: "Compare how recycling and waste separation are handled in your country to how they are done in another country you know about. What are the biggest differences in the rules, the habits of the people, or how strictly they are enforced?", time: 110, type: "비교" }
+      { text: "Compare how recycling and waste separation are handled in your country to how they are done in another country you know about. What are the biggest differences in the rules, the habits of the people, or how strictly they are enforced?", time: 110, type: "비교" },
+      { text: "Some people say that individuals cannot make a real difference with recycling unless companies and governments also change their practices. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think many people fail to recycle properly, even when the rules are explained clearly? What problems or obstacles do people face, and why do you think this happens?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -437,7 +445,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about the role technology plays in your everyday life. What devices or digital tools do you find yourself relying on, and how have they become part of your daily routine?", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had related to technology or the internet. Maybe a new device changed your life, or you faced a technical problem. What happened?", time: 90, type: "경험" },
-      { text: "Compare your everyday life before smartphones and high-speed internet became common to your life now. What are the biggest differences you notice, and would you say the changes have mostly made life better or more complicated?", time: 110, type: "비교" }
+      { text: "Compare your everyday life before smartphones and high-speed internet became common to your life now. What are the biggest differences you notice, and would you say the changes have mostly made life better or more complicated?", time: 110, type: "비교" },
+      { text: "Some people think technology has made people's lives easier and more convenient, while others believe it has created more stress and new problems. What is your opinion on this issue? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think some people struggle to keep up with rapidly changing technology? What kinds of problems do they face, and what do you think is causing this gap?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -446,7 +456,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about the public transportation system where you live. What options are available to people, and which form do most people tend to use? Please give me a detailed description.", time: 90, type: "묘사" },
       { text: "What happened the last time something memorable occurred while you were using public transportation? Maybe something unexpected happened on your commute. What was it, and how did you handle it?", time: 90, type: "경험" },
-      { text: "Compare taking public transportation to driving your own car to get around your area. What are the benefits and drawbacks of each option, and which one do you usually choose?", time: 110, type: "비교" }
+      { text: "Compare taking public transportation to driving your own car to get around your area. What are the benefits and drawbacks of each option, and which one do you usually choose?", time: 110, type: "비교" },
+      { text: "Some people believe that using public transportation is better for society than driving a personal car, while others disagree. What is your opinion on this issue? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think public transportation can be crowded or unreliable at certain times? What problems does this cause for commuters, and what do you think is the main cause?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -455,7 +467,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about a restaurant you like to go to. What kind of food do they serve, what is the atmosphere like, and why do you enjoy going there? Please describe it in detail.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable dining experience you had at a restaurant. Who were you with, what did you eat, and why was it so special?", time: 90, type: "경험" },
-      { text: "Compare eating at an upscale, expensive restaurant to eating at a small, casual local eatery. What is different about the food, the atmosphere, and the overall experience, and which type of place do you prefer?", time: 110, type: "비교" }
+      { text: "Compare eating at an upscale, expensive restaurant to eating at a small, casual local eatery. What is different about the food, the atmosphere, and the overall experience, and which type of place do you prefer?", time: 110, type: "비교" },
+      { text: "Some people think eating out often is a waste of money and unhealthy, while others see it as an important part of enjoying life. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think some restaurants struggle to stay in business or provide poor service? What problems do customers commonly face at restaurants, and what do you think causes them?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -463,7 +477,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Tell me about an important holiday or traditional celebration in your country. When is it, and how do people usually celebrate it? Please describe it in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had during a holiday or traditional celebration. What did you do, who were you with, and why was it memorable?", time: 90, type: "경험" },
-      { text: "Compare how your grandparents' or parents' generation traditionally celebrated this holiday to how your generation celebrates it today. What customs have stayed the same, and what has changed?", time: 110, type: "비교" }
+      { text: "Compare how your grandparents' or parents' generation traditionally celebrated this holiday to how your generation celebrates it today. What customs have stayed the same, and what has changed?", time: 110, type: "비교" },
+      { text: "Some people think traditional holiday customs should be preserved exactly as they are, while others believe they should change with the times. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think many people find holidays stressful, even though they are meant for celebration and relaxation? What kinds of problems commonly arise during holidays, and why?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -472,7 +488,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe a clinic or hospital that you visit regularly. What does it look like inside, and what kinds of services does it offer? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you had to visit a hospital or clinic unexpectedly. What was wrong, how did the visit go, and how did the experience affect you?", time: 90, type: "경험" },
-      { text: "Compare going to a large general hospital to visiting a small neighborhood clinic when you are not feeling well. What are the differences in waiting times, cost, and the quality of care, and which do you usually choose?", time: 110, type: "비교" }
+      { text: "Compare going to a large general hospital to visiting a small neighborhood clinic when you are not feeling well. What are the differences in waiting times, cost, and the quality of care, and which do you usually choose?", time: 110, type: "비교" },
+      { text: "Some people believe healthcare should be free and provided by the government, while others think it should remain a private business. What is your opinion on this issue? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think people sometimes have to wait a long time to see a doctor or receive treatment? What problems does this create, and what do you think are the main causes?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -481,7 +499,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe your personal sense of style and the kinds of clothing you typically wear. What brands, colors, or styles do you prefer, and why? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Have you ever had a memorable experience while shopping for clothes? What were you looking for, what happened during the trip, and what made that experience stand out? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare fashion trends in your country to fashion trends in another country you are familiar with. What are the biggest differences in style, colors, or what people consider fashionable? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare fashion trends in your country to fashion trends in another country you are familiar with. What are the biggest differences in style, colors, or what people consider fashionable? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think following fashion trends is important for making a good impression, while others believe it does not matter at all. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think the fashion industry is often criticized for problems like overproduction or unfair labor practices? What issues do you think are most serious, and why do they happen?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -490,7 +510,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe the furniture in your home or the room you spend the most time in. What pieces do you have, how are they arranged, and what do you like about them? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you bought a new piece of furniture or rearranged your living space. What did you get or change, and how did it affect the feel of your home? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare buying furniture at a physical furniture store to buying it online. What are the advantages and disadvantages of each method, and which one would you choose the next time you need a new piece of furniture? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare buying furniture at a physical furniture store to buying it online. What are the advantages and disadvantages of each method, and which one would you choose the next time you need a new piece of furniture? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think it's better to buy expensive, high-quality furniture that lasts a long time, while others prefer cheaper furniture that can be replaced often. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think people sometimes have trouble finding furniture that fits their space or needs? What problems commonly come up when choosing or buying furniture, and why?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -498,7 +520,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe how you typically spend your free time. What activities do you enjoy most, and who do you usually spend your leisure time with? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a particularly enjoyable leisure activity you took part in recently. What did you do, where did you go, and what made it so memorable? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare how you spend your free time on weekdays to how you spend it on weekends. What kinds of activities do you do differently, and which do you enjoy more? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare how you spend your free time on weekdays to how you spend it on weekends. What kinds of activities do you do differently, and which do you enjoy more? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people believe having a lot of free time is essential for happiness, while others think being busy and productive matters more. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think many people feel they don't have enough leisure time these days? What problems does this cause, and what do you think is the main reason for it?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -507,7 +531,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe your typical internet browsing habits. What kinds of websites or apps do you visit most often, and what do you usually look for or do online? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you found something particularly useful or surprising while browsing the internet. What were you searching for, what did you discover, and how did it impact you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare how you browsed the internet ten or fifteen years ago — the sites you visited, the devices you used — to how you use the internet today. What has changed the most about your online habits?", time: 110, type: "비교" }
+      { text: "Compare how you browsed the internet ten or fifteen years ago — the sites you visited, the devices you used — to how you use the internet today. What has changed the most about your online habits?", time: 110, type: "비교" },
+      { text: "Some people think spending a lot of time browsing the internet is a waste of time, while others see it as valuable for learning and relaxation. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think people sometimes come across false or misleading information while browsing the internet? What problems can this cause, and why do you think it happens so often?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -516,7 +542,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe your ideal hotel stay. What kind of hotel do you prefer, and what amenities, services, or features are most important to you? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Think back to a memorable hotel stay you have had. Where was the hotel, what was it like, and what made that stay stand out — whether for a good reason or a bad one? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare staying at a hotel to staying at a guesthouse or an Airbnb-style rental when you travel. What are the benefits of each option, and which do you usually choose for your trips? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare staying at a hotel to staying at a guesthouse or an Airbnb-style rental when you travel. What are the benefits of each option, and which do you usually choose for your trips? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think it's worth paying extra for a luxury hotel, while others believe a basic, affordable hotel is just as good. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think travelers sometimes run into problems with hotel reservations or service? What kinds of issues commonly occur, and what do you think causes them?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -524,7 +552,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe how you typically make plans or appointments with your friends, family, or colleagues. What methods or tools do you use to arrange meetings, and how do you keep track of your commitments? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a time when you made plans with someone and things did not go as expected — perhaps the appointment was cancelled, you were late, or something unexpected came up. What happened, and how did you handle it? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare how older generations, like your parents, typically arranged plans and appointments to how people your age do it today. What are the biggest differences in the methods or tools they use? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare how older generations, like your parents, typically arranged plans and appointments to how people your age do it today. What are the biggest differences in the methods or tools they use? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think being punctual and sticking strictly to plans is very important, while others believe being flexible matters more. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think people sometimes cancel or change plans at the last minute? What problems does this cause for the people involved, and what do you think is the main reason?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -532,7 +562,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe a celebrity or well-known public figure that you find interesting or admire. Who are they, what are they famous for, and what qualities or achievements make them stand out to you? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Have you ever had a memorable experience related to a celebrity — such as attending their performance, watching a documentary about them, or following an important moment in their career? What happened, and why was it meaningful to you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare the kind of celebrities that are popular in your country to the kind of celebrities that are popular internationally, such as in Hollywood. What differences do you notice in how they are perceived or how fans interact with them? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare the kind of celebrities that are popular in your country to the kind of celebrities that are popular internationally, such as in Hollywood. What differences do you notice in how they are perceived or how fans interact with them? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think celebrities have too much influence on young people's opinions and behavior, while others disagree. What is your opinion on this issue? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think celebrities are often the subject of rumors or controversy? What kinds of problems does this create for them and their fans, and why do you think this happens?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -541,7 +573,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe your typical phone call habits. How often do you make or receive calls, who do you usually talk to, and what kinds of topics do you discuss? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable phone call you once had — perhaps one that brought surprising news, was emotionally difficult, or turned out to be especially important. What was the call about, and how did it affect you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare how people made phone calls twenty years ago — using landlines or pay phones — to how people communicate by phone today. What has changed the most about the role phone calls play in daily life?", time: 110, type: "비교" }
+      { text: "Compare how people made phone calls twenty years ago — using landlines or pay phones — to how people communicate by phone today. What has changed the most about the role phone calls play in daily life?", time: 110, type: "비교" },
+      { text: "Some people prefer making phone calls to communicate, while others think texting or messaging apps are better. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think fewer people make phone calls compared to the past, relying instead on texting or messaging apps? What problems, if any, does this cause, and what do you think is behind this change?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -549,7 +583,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe the geography of the region or country where you live. What are the major geographical features — such as mountains, rivers, coastlines, or plains — that define the landscape? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "What happened the last time you took a trip or journey within your own country where the natural scenery or geography made a strong impression on you? Where did you go, what did you see, and why was it so impactful? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare the geography of the area where you currently live to the geography of another region or city in your country. What are the biggest differences in the landscape, climate, or natural surroundings? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare the geography of the area where you currently live to the geography of another region or city in your country. What are the biggest differences in the landscape, climate, or natural surroundings? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think geography and natural surroundings have a big influence on a region's culture and lifestyle, while others believe it matters very little. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think certain regions experience problems like natural disasters or environmental damage more often than others? What do you think causes these issues?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -557,7 +593,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe how you typically order food for delivery. What kinds of food do you order most often, which apps or services do you use, and what is your usual routine when placing an order? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a particularly memorable food delivery experience — either an especially satisfying one or a time when something went wrong. What did you order, what happened, and how did it turn out? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare ordering food for delivery through an app to going out and eating at a restaurant in person. What are the advantages and disadvantages of each, and which do you prefer when you don't feel like cooking? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare ordering food for delivery through an app to going out and eating at a restaurant in person. What are the advantages and disadvantages of each, and which do you prefer when you don't feel like cooking? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think food delivery apps have made life much more convenient, while others believe they have created new problems for society. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think people sometimes have problems with food delivery, such as late arrivals or incorrect orders? What do you think are the main causes of these issues?", time: 110, type: "이슈" }
     ]
   },
   {
@@ -565,7 +603,9 @@ const SURPRISE_TOPICS = [
     questions: [
       { text: "Describe a local festival or community event that takes place in your area. What is it called, when does it happen, and what kinds of activities, performances, or food are featured? Please describe in as much detail as possible.", time: 90, type: "묘사" },
       { text: "Tell me about a memorable experience you had at a local festival or community event. What event did you attend, what did you do or see there, and why was it a memorable occasion for you? Please describe in as much detail as possible.", time: 90, type: "경험" },
-      { text: "Compare attending a local festival in the summer to attending one in the winter. How does the atmosphere, the food, or the activities differ depending on the season, and which type of festival do you enjoy more? Please explain in as much detail as possible.", time: 110, type: "비교" }
+      { text: "Compare attending a local festival in the summer to attending one in the winter. How does the atmosphere, the food, or the activities differ depending on the season, and which type of festival do you enjoy more? Please explain in as much detail as possible.", time: 110, type: "비교" },
+      { text: "Some people think local festivals are important for preserving culture and bringing communities together, while others see them as unnecessary or outdated. What is your opinion on this? Please explain in as much detail as possible.", time: 110, type: "의견" },
+      { text: "Why do you think some local festivals struggle to attract visitors or maintain popularity over the years? What problems do organizers commonly face, and why?", time: 110, type: "이슈" }
     ]
   }
 ];

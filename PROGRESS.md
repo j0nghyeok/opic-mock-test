@@ -177,3 +177,23 @@ merge_script.py 같은 별도 병합 스크립트는 없다. `index.html`은 `sh
 - **`downloadTranscript()` 키 없음 분기**: `pipeline` 직접 호출 대신 `getAsrWorker`/`transcribeInWorker` 사용. 모델 준비 중 `🤖 모델 준비 중… NN%`, 전사 중 `🎤 전사 중… (i/총) · M:SS`(1초 `setInterval`로 경과시간 갱신 — 워커 분리로 메인 스레드가 자유로워 정상 갱신됨, `finally`에서 인터벌 정리). 워커 생성 실패(구형 브라우저 등) 또는 전문항 실패 시 기존 번들 `.json` 폴백 그대로 유지.
 - **모델 선택 UI**: `#btn-transcript` 옆 `#stt-model-select`(`Xenova/whisper-base.en`="빠름(기본)" / `Xenova/whisper-small.en`="정확(느림)"), `localStorage.opic_stt_model`에 저장, `initSttModel()`이 페이지 로드시 복원(다른 `init*Key()` 호출과 동일 위치에서 실행). 기본값은 `base.en`(빠름).
 - **검증**: `<script>` 블록 node `new Function` 문법 검사 오류 0. `diff -q shell.html index.html` identical.
+
+## 돌발 콤보 Q3 유형 고정("항상 비교") 해소 — 2026-07-07
+
+"돌발 콤보의 3번째 문항이 항상 비교로 고정되는" 문제 수정. 원인: `SURPRISE_TOPICS`가 주제당 [묘사, 경험, 비교] 3문항뿐이라 `pickCombo`의 wantCompare=true 분기가 무조건 `type==='비교'`만 찾았음.
+
+- **`questions.js`**: `SURPRISE_TOPICS` 20개 주제 전부에 문항 2개씩 추가(3→5개, [묘사, 경험, 비교, 의견, 이슈]) — 기존 3개 문항·`key`·`related`는 전혀 건드리지 않음. 신규 2개는 주제별로 새로 작성:
+  - **의견**(type:"의견", time 110): "Some people think/say ~. What is your opinion on this?" 형태의 찬반·견해 요구 문항.
+  - **이슈**(type:"이슈", time 110): "Why do you think people/some [X] ~? What problems does this cause, and why?" 형태의 원인·문제 설명 요구 문항.
+  - 총 40개 신규 문항, 기존 문항과 내용 중복 없음.
+- **`shell.html` `pickCombo(pool, wantCompare)`**: wantCompare=true 분기를 `type==='비교'` 고정에서 랜덤 유형 선택으로 교체 — `Math.random()`으로 비교 50% / 의견 25% / 이슈 25% 확률로 우선순위 리스트를 정하고, `takeOne`으로 그 순서대로 찾아 첫 매치를 채택. 어떤 유형도 없으면 남은 문항 중 첫 번째로 폴백(`remaining[0]`) — 항상 3문항 채워짐 보장. `SURVEY_QUESTIONS`(서베이 주제, 여전히 3문항뿐)에서는 의견/이슈가 없으므로 폴백 체인이 항상 비교로 귀결되어 **회귀 없음**. wantCompare=false(경험 콤보1) 로직은 변경하지 않음.
+- **Claude 생성 프롬프트**: "8-10번: 돌발 콤보" 지시를 "묘사 → 습관/경험 → (비교·의견·원인설명 중 하나, 시험마다 다르게)"로 갱신, 세 번째 문항 type을 매 시험 고정하지 말고 비교/의견/이슈 중 하나로 다양화하라는 문구 추가.
+- **검증**:
+  - `node -e "require('./questions.js')"` 로드 OK. `SURPRISE_TOPICS` 20개 전부 `questions.length===5`이고 type 집합이 {묘사,경험,비교,의견,이슈}와 정확히 일치함을 스크립트로 확인.
+  - node `vm` 샌드박스에서 실제 `buildQuestions`를 questions.js + shell.html 인라인 스크립트 순서로 로드해 추출·실행. 랜덤 서베이로 2000회 시뮬:
+    - (a) 항상 15문항 (`Always 15 questions: true`)
+    - (b) 돌발 콤보(항상 wantCompare=true인 콤보3 슬롯 기준, 2000 샘플) Q3 type 분포: 비교 48.7~51.0%, 의견 24.4~25.3%, 이슈 24.5~26.1% (목표 50/25/25 근처)
+    - (c) 서베이 콤보(콤보2, wantCompare=true, 의견/이슈 없는 3문항 주제) 2000 샘플 전부 Q3 type==='비교' — 회귀 0건
+    - (d) 중복 문항(텍스트 기준) 0건
+  - `<script>` 블록 node `new Function` 문법 검사 오류 0.
+  - `cp shell.html index.html` 실행 후 `diff -q shell.html index.html` → identical.
