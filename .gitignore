@@ -8,3 +8,6 @@ opic_bundle*.json
 opic_q*.webm
 opic_결과*.txt
 opic_전사*.txt
+
+# 개인 사업 조사 자료 (공개 저장소에 올리지 않음)
+수익화_*
