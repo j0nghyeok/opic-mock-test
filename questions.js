@@ -649,7 +649,8 @@ const ADVANCE_TOPICS = [
     questions: [
       { text: "Technology has changed rapidly in recent years. Tell me about a technology or device that has had a big impact on people's daily lives. What is it, and how has it changed the way people live and work? Please explain in detail.", time: 90, type: "이슈" },
       { text: "Some people believe this technology has made life better, while others worry about its negative effects. What is your opinion? Discuss both the advantages and disadvantages, and explain what you think the future holds.", time: 110, type: "의견" },
-      { text: "Now, let's compare generations. How differently do younger people and older generations, such as your parents, use or adapt to this technology? Describe the biggest differences you have noticed between how each generation approaches it, and explain what might account for these differences.", time: 120, type: "비교" }
+      { text: "Now, let's compare generations. How differently do younger people and older generations, such as your parents, use or adapt to this technology? Describe the biggest differences you have noticed between how each generation approaches it, and explain what might account for these differences.", time: 120, type: "비교" },
+      { text: "Let's talk about the future. How do you think this technology will continue to develop over the next five or ten years? Describe what changes you expect to see, and explain what impact you think they will have on people's daily lives.", time: 120, type: "전망" }
     ]
   },
   {
@@ -657,7 +658,8 @@ const ADVANCE_TOPICS = [
     questions: [
       { text: "Environmental issues, such as climate change, have become a major concern around the world. Tell me about an environmental problem that affects your country. What is causing it, and how is it affecting people's lives? Please explain in as much detail as possible.", time: 90, type: "이슈" },
       { text: "What do you think should be done about this problem? Discuss what individuals, companies, and the government could do differently, and explain what kind of impact you think these changes would have in the future.", time: 110, type: "의견" },
-      { text: "Now, let's compare countries. How does your country's approach to this environmental issue compare to the approach taken by another country you are familiar with? Describe the biggest differences in policies, public awareness, or results, and explain which approach you think is more effective.", time: 120, type: "비교" }
+      { text: "Now, let's compare countries. How does your country's approach to this environmental issue compare to the approach taken by another country you are familiar with? Describe the biggest differences in policies, public awareness, or results, and explain which approach you think is more effective.", time: 120, type: "비교" },
+      { text: "Let's talk about the future. If nothing changes, how do you think this environmental problem will affect your country over the next few decades? Describe what you expect to happen, and explain what would need to change to prevent it.", time: 120, type: "전망" }
     ]
   },
   {
@@ -665,7 +667,8 @@ const ADVANCE_TOPICS = [
     questions: [
       { text: "The way people work has changed a great deal in recent years, with more people working remotely or in flexible arrangements. Tell me about how work has changed in your country. What are the main differences compared to the past? Please explain in detail.", time: 90, type: "이슈" },
       { text: "Some people think these changes in the way we work are positive, while others think they create new problems. What is your opinion on this trend? Discuss both sides and explain how you think work will continue to change in the future.", time: 110, type: "의견" },
-      { text: "Now, let's compare working in an office to working remotely from home. What are the advantages and disadvantages of each arrangement, and which do you think is more effective for productivity and well-being?", time: 120, type: "비교" }
+      { text: "Now, let's compare working in an office to working remotely from home. What are the advantages and disadvantages of each arrangement, and which do you think is more effective for productivity and well-being?", time: 120, type: "비교" },
+      { text: "Let's talk about the future. How do you think the way people work will continue to change over the next decade? Describe what you expect a typical workplace to look like, and explain what is driving these changes.", time: 120, type: "전망" }
     ]
   },
   {
@@ -673,7 +676,8 @@ const ADVANCE_TOPICS = [
     questions: [
       { text: "Societies change over time, and new social trends often emerge. Tell me about a social trend that has become popular in your country recently. What is it, and why do you think it has become so popular? Please explain in as much detail as possible.", time: 90, type: "이슈" },
       { text: "Do you think this trend is a positive or a negative development for society? Explain your opinion, comparing how things were before this trend appeared to how they are now, and discuss what effect you think it will have going forward.", time: 110, type: "의견" },
-      { text: "Now, let's compare the past and the present more closely. How was this area of life different ten or twenty years ago compared to today? Describe the biggest changes you have noticed, and explain what you expect this trend to look like in the future.", time: 120, type: "비교" }
+      { text: "Now, let's compare the past and the present more closely. How was this area of life different ten or twenty years ago compared to today? Describe the biggest changes you have noticed, and explain what you expect this trend to look like in the future.", time: 120, type: "비교" },
+      { text: "Let's talk about the future. Do you think this trend will continue to grow, fade away, or change into something else over the next several years? Describe what you expect to happen, and explain your reasoning.", time: 120, type: "전망" }
     ]
   }
 ];
