@@ -382,6 +382,12 @@
 
   <div class="container">
 
+    <!-- 추천 조합 프리셋 -->
+    <div class="survey-section" style="display:flex;flex-direction:column;gap:0.4rem;">
+      <button type="button" class="btn btn-secondary" onclick="applyRecommendedSurvey()">⚡ 추천 조합 한번에 선택</button>
+      <span class="min-note">수험생들이 가장 많이 쓰는 조합(여가·여행 중심)으로 12개를 자동 선택합니다. 선택 후 자유롭게 수정 가능</span>
+    </div>
+
     <!-- Part 3 거주형태 -->
     <div class="survey-section">
       <div class="section-label">거주 형태 <span class="min-note">(1개 선택)</span></div>
@@ -721,6 +727,33 @@ function updateSurveyCounter() {
   const el = document.getElementById('survey-counter');
   el.textContent = `여가/취미/운동/여행: ${total} / 12개`;
   el.className = 'survey-count ' + (total >= 12 ? 'ok' : 'bad');
+}
+
+/* 수험생들이 가장 많이 쓰는 국룰 조합(여가·여행 중심) 12개를 한번에 선택 */
+function applyRecommendedSurvey() {
+  const preset = {
+    residence: '개인주택이나 아파트에 홀로 거주',
+    leisure: ['영화 보기', '공연 보기', '콘서트 보기', '공원 가기', '해변 가기', '쇼핑하기'],
+    hobbies: ['음악 감상하기'],
+    sports: ['조깅', '걷기'],
+    travel: ['국내여행', '해외여행', '집에서 보내는 휴가'],
+  };
+
+  ['residence', 'leisure', 'hobbies', 'sports', 'travel'].forEach(name => {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(el => { el.checked = false; });
+  });
+
+  const r = document.querySelector(`input[name="residence"][value="${preset.residence}"]`);
+  if (r) r.checked = true;
+  ['leisure', 'hobbies', 'sports', 'travel'].forEach(cat => {
+    preset[cat].forEach(val => {
+      const el = document.querySelector(`input[name="${cat}"][value="${val}"]`);
+      if (el) el.checked = true;
+    });
+  });
+
+  saveSurvey();
+  updateSurveyCounter();
 }
 
 // 변경 즉시 localStorage 저장 + 카운터 갱신
@@ -1194,7 +1227,7 @@ async function speakQuestion(onEnd) {
       const res = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'tts-1-hd', voice: 'nova', input: q.text }),
+        body: JSON.stringify({ model: 'gpt-4o-mini-tts', voice: 'nova', input: q.text }),
         signal: _ttsController.signal
       });
       if (myIndex !== state.currentIndex) return;
@@ -1548,20 +1581,48 @@ async function blobToPCM16k(blob) {
    WASM 추론을 메인 스레드에서 분리해 UI 진행 표시가 멈추지 않도록 함
 ────────────────────────────────────── */
 const ASR_WORKER_SRC = `
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/+esm';
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm';
 env.allowLocalModels = false;
-try { env.backends.onnx.wasm.numThreads = 1; } catch (_) {}
 let asr = null;
+let backend = null;
+let modelId = null;
+const initWasm = async (progress_callback) => {
+  try { env.backends.onnx.wasm.numThreads = 1; } catch (_) {}
+  asr = await pipeline('automatic-speech-recognition', modelId, {
+    device: 'wasm',
+    dtype: 'q8',
+    progress_callback
+  });
+  backend = 'wasm';
+};
 self.onmessage = async (e) => {
   const d = e.data;
   try {
     if (d.type === 'init') {
-      asr = await pipeline('automatic-speech-recognition', d.model, {
-        progress_callback: (p) => self.postMessage({ type: 'progress', progress: p && p.progress })
-      });
-      self.postMessage({ type: 'ready' });
+      modelId = d.model;
+      const progress_callback = (p) => self.postMessage({ type: 'progress', progress: p && p.progress });
+      try {
+        if (!navigator.gpu) throw new Error('WebGPU unavailable');
+        asr = await pipeline('automatic-speech-recognition', modelId, {
+          device: 'webgpu',
+          progress_callback
+        });
+        backend = 'webgpu';
+      } catch (gpuErr) {
+        await initWasm(progress_callback);
+      }
+      self.postMessage({ type: 'ready', backend });
     } else if (d.type === 'transcribe') {
-      const res = await asr(d.pcm, { chunk_length_s: 30 });
+      let res;
+      try {
+        res = await asr(d.pcm, { chunk_length_s: 30 });
+      } catch (inferErr) {
+        // WebGPU는 파이프라인 생성은 되고 첫 추론에서만 실패하는 드라이버가 있음 — WASM으로 1회 재초기화 후 같은 문항 재시도
+        if (backend !== 'webgpu') throw inferErr;
+        console.warn('[OPIc] WebGPU 추론 실패, WASM으로 폴백:', String(inferErr && inferErr.message || inferErr));
+        await initWasm(() => {});
+        res = await asr(d.pcm, { chunk_length_s: 30 });
+      }
       self.postMessage({ type: 'result', id: d.id, text: (res && res.text ? res.text.trim() : '') });
     }
   } catch (err) {
@@ -1586,7 +1647,7 @@ async function getAsrWorker(model, onProgress) {
       const onMsg = (e) => {
         const d = e.data;
         if (d.type === 'progress') { if (onProgress) onProgress(d.progress); return; }
-        if (d.type === 'ready') { worker.removeEventListener('message', onMsg); resolve(); return; }
+        if (d.type === 'ready') { console.log('[OPIc] ASR worker backend:', d.backend); worker.removeEventListener('message', onMsg); resolve(); return; }
         if (d.type === 'error') { worker.removeEventListener('message', onMsg); reject(new Error(d.message)); return; }
       };
       worker.addEventListener('message', onMsg);
@@ -1676,7 +1737,7 @@ async function downloadTranscript() {
             const ext = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
             const fd = new FormData();
             fd.append('file', blob, `q${i + 1}.${ext}`);
-            fd.append('model', 'whisper-1');
+            fd.append('model', 'gpt-4o-mini-transcribe');
             fd.append('language', 'en');
             const r = await fetch('https://api.openai.com/v1/audio/transcriptions', {
               method: 'POST',

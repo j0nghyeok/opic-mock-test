@@ -197,3 +197,22 @@ merge_script.py 같은 별도 병합 스크립트는 없다. `index.html`은 `sh
     - (d) 중복 문항(텍스트 기준) 0건
   - `<script>` 블록 node `new Function` 문법 검사 오류 0.
   - `cp shell.html index.html` 실행 후 `diff -q shell.html index.html` → identical.
+
+## 최신 트렌드 반영 — 2026-07-10
+
+리서치로 교차 검증된 4가지 최신화를 적용. **무엇을·왜**:
+
+1. **OpenAI TTS 모델 세대교체** (`shell.html` 문항 음성 재생, `speakQuestion`): `body: JSON.stringify({ model: ... })`의 `model`을 `'tts-1-hd'` → `'gpt-4o-mini-tts'`로 교체. 엔드포인트(`/v1/audio/speech`)·`voice: 'nova'`·나머지 로직은 그대로 — `tts-1-hd`는 구세대 모델이고 `gpt-4o-mini-tts`가 현재 권장 세대이므로 교체. 실패 시 브라우저 음성 폴백(기존 `catch`)은 손대지 않음.
+2. **OpenAI 전사 모델 세대교체** (`downloadTranscript`): `fd.append('model', ...)`를 `'whisper-1'` → `'gpt-4o-mini-transcribe'`로 교체. 이 앱은 응답에서 `j.text`만 사용하고(타임스탬프 미사용) `language: 'en'` 파라미터와 나머지 로직은 그대로 — `whisper-1`은 구세대이고 `gpt-4o-mini-transcribe`가 정확도·비용 면에서 현재 권장 모델.
+3. **브라우저 전사 transformers.js v3 + WebGPU 가속** (`ASR_WORKER_SRC`): 워커 import를 `@xenova/transformers@2.17.2`(구 패키지명, 단종 계열) → `@huggingface/transformers@3.8.1`(npm `latest`는 4.2.0이지만 지침에 따라 최신 **3.x 안정판**으로 고정, `+esm` CDN)로 교체. `init` 처리에 2단 폴백을 구현: `navigator.gpu` 존재 시 먼저 `{ device: 'webgpu' }`로 `pipeline` 생성을 시도하고, 실패하면 `catch`에서 `{ device: 'wasm', dtype: 'q8' }`(단일스레드 유지: `env.backends.onnx.wasm.numThreads = 1`)로 재시도. 어느 쪽으로 초기화됐는지 `ready` 메시지에 `backend: 'webgpu'|'wasm'` 필드로 포함시키고, 메인 스레드 `getAsrWorker`의 `ready` 핸들러에서 `console.log('[OPIc] ASR worker backend:', d.backend)`로 남김. `progress_callback`, `transcribe` 메시지 프로토콜(`id` 매칭), 에러 `postMessage` 구조, 모델 ID(`Xenova/whisper-base.en` / `small.en`), `env.allowLocalModels = false`는 전부 유지 — WebGPU 지원 브라우저에서는 대폭 가속, 미지원 환경에서는 기존과 동일한 wasm 경로로 무중단 폴백.
+4. **서베이 "추천 조합" 원클릭 프리셋** (`screen-survey`): `<div class="container">` 시작 직후, 거주형태 섹션 위에 `⚡ 추천 조합 한번에 선택` 버튼과 설명 문구를 추가(기존 `btn`/`btn-secondary`, `survey-section`, `min-note` 클래스 재사용). `applyRecommendedSurvey()` 함수 신설 — 기존 체크를 전부 해제한 뒤 residence(`개인주택이나 아파트에 홀로 거주`), leisure 6개(`영화 보기`/`공연 보기`/`콘서트 보기`/`공원 가기`/`해변 가기`/`쇼핑하기`), hobbies 1개(`음악 감상하기`), sports 2개(`조깅`/`걷기`), travel 3개(`국내여행`/`해외여행`/`집에서 보내는 휴가`) = 합계 12개를 선택. 카운터(`#survey-counter`)는 `change` 이벤트 리스너로 `saveSurvey()`+`updateSurveyCounter()`를 호출하는 구조라, 프리셋 적용 후에도 동일하게 `saveSurvey()`와 `updateSurveyCounter()`를 직접 호출해 즉시 갱신되도록 함(개별 `change` 이벤트 디스패치 불필요).
+
+**검증**:
+- shell.html 인라인 `<script>` 블록(1개) node `new Function()` 파싱 → 문법 오류 0.
+- `ASR_WORKER_SRC` 문자열(모듈 `import`문 제외 후) 별도 `new Function()` 파싱 → 문법 오류 0.
+- node `vm` 샌드박스에서 questions.js + shell.html 인라인 스크립트를 로드해 `buildQuestions`를 추출, 무작위 서베이(2-5개 leisure, 1-3개 hobbies/sports/travel)로 100회 시뮬 → **100/100 always 15 questions**, 예외 0건 (회귀 없음).
+- `applyRecommendedSurvey`가 선택하는 12개 value(+residence 1개, 총 13개)가 전부 shell.html의 실제 `input value="..."`로 존재함을 `grep -c`로 개별 대조 — 전부 1건씩 일치.
+- `cp shell.html index.html` 후 `diff -q shell.html index.html` → identical.
+- `git diff` 스코프 확인: 4가지 변경(서베이 프리셋 UI+함수, TTS 모델, ASR 워커 v3/WebGPU+backend 로그, 전사 모델) 외 다른 라인 변경 없음.
+
+**코드리뷰(Opus) 결과 및 후속 수정**: Critical/High 0건, APPROVE. MEDIUM 1건 — "WebGPU가 파이프라인 **생성**은 성공하고 첫 **추론**에서만 실패하는 드라이버에서는 wasm 재폴백을 못 타고 전 문항 전사 실패 → 번들 `.json` 폴백으로만 떨어진다" — 를 즉시 반영: `ASR_WORKER_SRC`를 리팩터링해 `initWasm(progress_callback)` 헬퍼와 워커 전역 `backend`/`modelId`를 도입하고, `transcribe` 처리에서 추론 예외 발생 시 `backend === 'webgpu'`이면 `console.warn` 후 `initWasm`으로 1회 재초기화하고 **같은 문항을 wasm으로 재시도**하도록 함(재시도 중 progress 콜백은 no-op이라 메인 스레드 `transcribeInWorker`의 id 매칭 프로토콜에 잡음 없음; wasm에서도 실패하면 기존대로 `error` postMessage → 문항별 `(전사 오류)` 처리). LOW 1건(WebGPU 경로 dtype 미지정 — 표준 옵션 base.en/small.en에서는 fp32 파일이 존재해 문제없음)은 참고로만 기록. 후속 수정 후 재검증: 워커 소스·인라인 스크립트 `new Function` 문법 오류 0, 재시도 로직 존재 확인, `cp shell.html index.html` → identical.
