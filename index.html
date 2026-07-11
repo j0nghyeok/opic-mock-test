@@ -6,6 +6,8 @@
   <title>OPIc 개인 모의고사</title>
   <!-- questions.js는 이 파일 이후에 로드 – 없어도 앱이 기동됨 -->
   <script src="questions.js" onerror="console.warn('[OPIc] questions.js not found – stub mode')"></script>
+  <!-- 사전 생성 문제 세트(선택) — URL에 ?fresh=1을 붙였을 때만 사용됨 -->
+  <script src="custom_questions.js" onerror="console.warn('[OPIc] custom_questions.js not found')"></script>
   <style>
     :root {
       --bg:           #0f172a;
@@ -1068,7 +1070,13 @@ async function startTest() {
   const btnStart = document.getElementById('btn-start');
   const anthropicKey = localStorage.getItem('opic_anthropic_key');
 
-  if (anthropicKey) {
+  const useFresh = new URLSearchParams(location.search).has('fresh');
+  if (useFresh && window.PREGENERATED_QUESTIONS && window.PREGENERATED_QUESTIONS.length === 15) {
+    // ?fresh=1일 때만: 사전 생성된 문제 세트 1회분 사용 (API 호출 없음, 기본 방문자에겐 영향 없음)
+    state.questions = window.PREGENERATED_QUESTIONS.slice();
+    window.PREGENERATED_QUESTIONS = null; // 같은 페이지에서 재시작하면 내장 문제은행 사용
+    console.log('[OPIc] 사전 생성 문제 세트 사용 (?fresh=1)');
+  } else if (anthropicKey) {
     if (btnStart) { btnStart.disabled = true; btnStart.textContent = '🤖 Claude가 문제를 생성 중...'; }
     try {
       const qs = await generateQuestionsWithClaude(state.survey, state.difficulty);

@@ -216,3 +216,7 @@ merge_script.py 같은 별도 병합 스크립트는 없다. `index.html`은 `sh
 - `git diff` 스코프 확인: 4가지 변경(서베이 프리셋 UI+함수, TTS 모델, ASR 워커 v3/WebGPU+backend 로그, 전사 모델) 외 다른 라인 변경 없음.
 
 **코드리뷰(Opus) 결과 및 후속 수정**: Critical/High 0건, APPROVE. MEDIUM 1건 — "WebGPU가 파이프라인 **생성**은 성공하고 첫 **추론**에서만 실패하는 드라이버에서는 wasm 재폴백을 못 타고 전 문항 전사 실패 → 번들 `.json` 폴백으로만 떨어진다" — 를 즉시 반영: `ASR_WORKER_SRC`를 리팩터링해 `initWasm(progress_callback)` 헬퍼와 워커 전역 `backend`/`modelId`를 도입하고, `transcribe` 처리에서 추론 예외 발생 시 `backend === 'webgpu'`이면 `console.warn` 후 `initWasm`으로 1회 재초기화하고 **같은 문항을 wasm으로 재시도**하도록 함(재시도 중 progress 콜백은 no-op이라 메인 스레드 `transcribeInWorker`의 id 매칭 프로토콜에 잡음 없음; wasm에서도 실패하면 기존대로 `error` postMessage → 문항별 `(전사 오류)` 처리). LOW 1건(WebGPU 경로 dtype 미지정 — 표준 옵션 base.en/small.en에서는 fp32 파일이 존재해 문제없음)은 참고로만 기록. 후속 수정 후 재검증: 워커 소스·인라인 스크립트 `new Function` 문법 오류 0, 재시도 로직 존재 확인, `cp shell.html index.html` → identical.
+
+## ?fresh=1 사전 생성 문제 세트 — 2026-07-11
+
+`custom_questions.js`(Claude가 직접 생성한 1회분 15문항, 추천 조합 서베이 기준)를 추가하고, `startTest`에 게이트 분기 신설: URL에 `?fresh=1`이 있을 때만 이 세트를 사용(1회 소비 후 null 처리 → 재시작 시 내장 문제은행). 파라미터 없는 기본 방문자는 기존 동작과 완전 동일. 세트 갱신은 custom_questions.js 내용만 교체하면 됨. 검증: 인라인 스크립트 `new Function` 문법 OK, 15문항 필드 완전성 OK, `diff -q shell.html index.html` identical.
